@@ -9,7 +9,7 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 ## Time line 
 
 | Date  | ddl |
-| ------------- | ------------- |
+| :-------------: | :-------------: |
 |  Nov. 20  | submit the subject and team members   |
 | 10-th course  | Presentation |
 | last experiment course | Final Presentation |
