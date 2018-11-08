@@ -10,6 +10,6 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 
 | Date  | ddl |
 | :-------------: | :-------------: |
-|  Nov. 20  | submit the subject and team members   |
+|  Nov. 21  | submit the subject and team members   |
 | 10-th course  | Presentation |
 | last experiment course | Final Presentation |
