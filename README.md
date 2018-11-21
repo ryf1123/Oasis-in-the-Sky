@@ -22,6 +22,10 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 | 10-th course  | Presentation |
 | last experiment course | Final Presentation |
 
+## Members in this project
+
+...
+
 ## Tasks
 
 > For the first week, the job of every partner is to learn webgl and three.js by yourself, and think about what is 
