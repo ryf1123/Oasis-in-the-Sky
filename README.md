@@ -28,7 +28,9 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 
 ## Tasks
 
-> For the first week, the job of every partner is to learn webgl and three.js by yourself, and think about what is 
+> For the first week, the job of every partner is to learn webgl, javaSJavaScript and three.js by yourself, and think about how many parts are needed for this job. Thus we can split the big project into parts.
+
+> Moreover, we will make a PPT and give a short talk in the class of next to share our ideas (naive ideas:X ) to our groups and teacher.
 
 ## Summary of Disscussions
 
