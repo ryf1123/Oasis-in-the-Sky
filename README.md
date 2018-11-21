@@ -31,4 +31,4 @@ After the disscussion, we got to the consensus of building a scene like Monument
 
 Moreover, there are events happening in this place, driven by time and events to improve playability. 
 
-![demo](https://github.com/ryf1123/CG-2018-Course-Project/tree/master/fig/对标工程.png)
+![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/对标工程.png)
