@@ -8,9 +8,11 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 
 ## Important things :smile:
 
-It is highly recommended to every team member to star, watch and fork this project to be informed by any modification of this project.
+- It is highly recommended to every team member to star, watch and fork this project to be informed by any modification of this project.
 
-建议各位都star，watch，fork这个github repository，以便查看重要的修改和日程提示
+- 建议各位都star，watch，fork这个github repository，以便查看重要的修改和日程提示
+
+- One more thing, please try to understand what a .dae file is, how to work with it and how to use a .dae in our project.
 
 ## Time line 
 
