@@ -41,3 +41,7 @@ After the disscussion, we got to the consensus of building a scene like Monument
 Moreover, there are events happening in this place, like dropping a boll, which can be driven by time and events to improve playability. 
 
 ![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/对标工程.png)
+
+### Second discussion (time: 11-27, partners: everyone)
+
+Come up with the detials and ideas about the presentation of tomorrow.
