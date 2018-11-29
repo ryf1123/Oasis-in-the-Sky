@@ -23,7 +23,7 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 
 ## Members in this project
 
-...
+马麟；任宇凡；徐金焱；郝家辉；罗天翔（排名不分先后）
 
 ## Tasks
 
