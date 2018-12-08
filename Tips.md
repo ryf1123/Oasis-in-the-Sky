@@ -5,5 +5,5 @@
 - 模型导出: https://threejs.org/examples/#misc_exporter_gltf
 - 已有模型: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/
 - 建模参考: https://zhuanlan.zhihu.com/p/40869476
-- 未完待续
+- 
 

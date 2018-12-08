@@ -41,3 +41,22 @@ After the disscussion, we got to the consensus of building a scene like Monument
 Moreover, there are events happening in this place, like dropping a boll, which can be driven by time and events to improve playability. 
 
 ![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/对标工程.png)
+
+
+
+### Second Discussion(time: 11-27, partners: all members)
+
+This time we mainly focus on preparing the presentation tomorrow in class. We simply discuss the style, which is determined to be low poly 3D. The technique part is the most troublesome one because the math and drawing are what we learned in this class and we wonder if it is appropriate to spend much time on modeling and designing. We decide about the topic: beautiful and free scene in the sky; Last but not least, the perspective and what can players do are covered.
+
+
+
+### Third Discussion(time: 12-08, partners: except 罗天翔)
+
+We set out time plan and do some simple arrangement;
+
+Inspired by the amazing picture in https://cgi.tutsplus.com/tutorials/secrets-to-creating-low-poly-illustrations-in-blender--cg-31770 We choose to use **Blender**, which is also recommended in class by our teacher.
+
+This week we will give our concentration on the model so we almost done about what need to be appear in our project: floating island, high mountain, river, house and windmill (castle perhaps). We aim to build an amazing scene and we will enjoy doing this.
+
+We will have another discussion next week, and a basic WebGL project have to be finished.
+
