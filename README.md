@@ -60,3 +60,13 @@ This week we will give our concentration on the model so we almost done about wh
 
 We will have another discussion next week, and a basic WebGL project have to be finished.
 
+
+### Forth Discussion(time: 12-16, partners: all dudes)
+
+We check the updates this week, which is not very ideal: the island model made is oversimple and rough, which surely needs to be rebuild. We found some examples for reference and reorganize ourself to go further.
+
+A problem here is that obj model only allow easy static things, That is, all movable things need to be drawed by webgl
+
+This week we will mainly stay in scene constructing, which is divided into two parts. One is keep making our island more beautiful, another is try to build a house that contains furnitures and details.
+
+Keep going~
