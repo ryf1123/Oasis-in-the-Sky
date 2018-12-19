@@ -24,7 +24,7 @@ var myAABB = function ( boxloc ) {
         this.max_z = new_boxloc[5];
     };
 
-    this.disbale = function()
+    this.disable = function()
     {
         this.enabled = false;
     };
@@ -44,9 +44,9 @@ var myAABB = function ( boxloc ) {
 
     this.collisionOver = function () {
         this.iscollision = false;
-    }
+    };
 
-    this.update();
+    return myAABB;
 
 };
 
