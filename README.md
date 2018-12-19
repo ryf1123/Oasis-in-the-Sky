@@ -70,3 +70,17 @@ A problem here is that obj model only allow easy static things, That is, all mov
 This week we will mainly stay in scene constructing, which is divided into two parts. One is keep making our island more beautiful, another is try to build a house that contains furnitures and details.
 
 Keep going~
+
+### Fifth discussion
+
+We talked about our work and other things, and what to do in the next week
+
+### Sixth discussion
+
+Everyone commit their own 3D model to the project
+
+### Seventh
+
+We made a house, added more interaction, enlarge our island and made animals move 
+
+![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/彩电截图.png)
