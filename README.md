@@ -34,7 +34,7 @@ Hello everyone. Welcome to our team for the CG course and hopefully every one of
 
 ## Summary of Disscussions
 
-### Fisrt discussion (time: 11-21, partners: except 郝家辉)
+### Fisrt discussion (time: 11-21)
 
 After the disscussion, we got to the consensus of building a scene like Monument Valley (纪念碑谷) or City of Sky (天空之城), which provide the busy modern man with a place to find what really matters in his mind. In this wonderland, we provide players with a place like a mountain, flying high over the ground. You can easily rotate the view and zoom-in and zoom-out to appreciate every aspect of this mountain, just like a God. And do meditation.
 
@@ -50,7 +50,7 @@ This time we mainly focus on preparing the presentation tomorrow in class. We si
 
 
 
-### Third Discussion(time: 12-08, partners: except 罗天翔)
+### Third Discussion(time: 12-08)
 
 We set out time plan and do some simple arrangement;
 
