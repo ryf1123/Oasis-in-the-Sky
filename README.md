@@ -83,4 +83,4 @@ Everyone commit their own 3D model to the project
 
 We made a house, added more interaction, enlarge our island and made animals move 
 
-![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/彩电截图.png)
+![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/彩电截图.jpg)
