@@ -147,14 +147,14 @@
             var onLoadMtl = function ( materials, materialCreator ) {
                 var objLoader = new THREE.OBJLoader();
                 objLoader.setMaterials( materialCreator );
-                objLoader.load( './models/floating_island.obj', function ( object ) {
+                objLoader.load( './models/moon_island.obj', function ( object ) {
                     scope.scene.add( object );
                 } );
             };
-            objLoader2.loadMtl( './models/floating_island.mtl', null, onLoadMtl );
+            objLoader2.loadMtl( './models/moon_island.mtl', null, onLoadMtl );
         };
 
-        OBJLoaderVerify.prototype.addContent = function( modelName , size, position)
+        OBJLoaderVerify.prototype.addContent = function( modelName, size, position)
         {
             this._reportProgress( { detail: { text: 'Loading: ' + modelName } } );
 
@@ -236,7 +236,7 @@
     app.initGL();
     app.resizeDisplayGL();
     app.initContent();
-    app.addContent('tinker', 0.5, [100, 100 , 100]);
+    app.addContent('tinker', 0.5, [100, 100, 100]);
     render();
 
 </script>
