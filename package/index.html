@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Moon and Star Island</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0 0 0 0;
+            padding: 0 0 0 0;
+            border: none;
+            cursor: default;
+        }
+        #info {
+            color: #fff;
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display:block;
+        }
+        #info a {
+            color: #f00;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer
+        }
+        #glFullscreen {
+            width: 100%;
+            height: 100vh;
+            min-width: 640px;
+            min-height: 360px;
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+        }
+        #example {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: #000000;
+        }
+        #feedback {
+            color: darkorange;
+        }
+        #dat {
+            user-select: none;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-Index: 200;
+        }
+    </style>
+</head>
+
+<body>
+<div id="glFullscreen">
+    <canvas id="example"></canvas>
+</div>
+<div id="dat">
+
+</div>
+
+<script src="src/Detector.js"></script>
+<script src="src/three.js"></script>
+<script src="src/TrackballControls.js"></script>
+<script src="src/MTLLoader.js"></script>
+<script src="src/OBJLoader.js"></script>
+<script src="src/dat.gui.min.js"></script>
+<script src="src/LoaderSupport.js"></script>
+<script src="src/OBJLoader2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
+<script src="js/myAABB.js"></script>
+<script src="js/Forest.js"></script>
+<script src="js/Decoration.js"></script>
+<script src="js/Cows.js"></script>
+<script src="js/Rabbits.js"></script>
+<script src="js/Wolfs.js"></script>
+<script src="js/Hedgehogs.js"></script>
+<script>
+
+    'use strict';
+
+    // Other Important Object
+    
+
+    var Outer = (function () {
+
+        var Validator = THREE.LoaderSupport.Validator;
+
+        function Outer( elementToBindTo ) {
+            this.renderer = null;
+            this.canvas = elementToBindTo;
+            this.aspectRatio = 1;
+            this.recalcAspectRatio();
+
+            this.scene = null;
+            this.cameraDefaults = {
+                posCamera: new THREE.Vector3( 0.0, 175.0, 500.0 ),
+                posCameraTarget: new THREE.Vector3( 0, 0, 0 ),
+                near: 0.1,
+                far: 10000,
+                fov: 45
+            };
+            this.camera = null;
+            this.cameraTarget = this.cameraDefaults.posCameraTarget;
+
+            // Flags
+            this.loading = true;
+
+            // Those Assets
+            this.controls = null;
+            this.objectSet = new THREE.Group();
+            // Animals
+            this.forest = null;
+            this.cows = null;
+            this.rabbits = null;
+            this.wolfs = null;
+            this.hedgehogs = null;
+            // Others
+            this.ballon = null;
+            this.airship = null;
+        }
+
+        Outer.prototype.initGL = function () {
+            this.renderer = new THREE.WebGLRenderer( {
+                canvas: this.canvas,
+                antialias: true,
+                autoClear: true
+            } );
+            this.renderer.setClearColor( 0x050505 );
+
+            this.scene = new THREE.Scene();
+
+            this.camera = new THREE.PerspectiveCamera( this.cameraDefaults.fov, this.aspectRatio, this.cameraDefaults.near, this.cameraDefaults.far );
+            this.resetCamera();
+            this.controls = new THREE.TrackballControls( this.camera, this.renderer.domElement );
+
+            var ambientLight = new THREE.AmbientLight( 0x404040 );
+            var directionalLight1 = new THREE.DirectionalLight( 0xC0C090 );
+            var directionalLight2 = new THREE.DirectionalLight( 0xC0C090 );
+
+            directionalLight1.position.set( -100, -50, 100 );
+            directionalLight2.position.set( 100, 50, -100 );
+
+            this.scene.add( directionalLight1 );
+            this.scene.add( directionalLight2 );
+            this.scene.add( ambientLight );
+        };
+
+        Outer.prototype.initContent = function () {
+            var modelName = 'low-poly world';
+            //this._reportProgress( { detail: { text: 'Loading: ' + modelName } } );
+
+            var scope = this;
+            var objLoader2 = new THREE.OBJLoader2();
+
+            var onLoadMtl = function ( materials, materialCreator ) {
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials( materialCreator );
+                objLoader.load( './models/moon_star_island.obj', function ( object ) {
+                    // Here append anythins
+
+                    // The Trees
+                    scope.forest = new Forest();
+                    object.add(scope.forest.mesh);
+                
+                    // The cows
+                    scope.cows = new Cows();
+                    object.add(scope.cows.mesh);
+
+                    // The rabbits
+                    scope.rabbits = new Rabbits();
+                    object.add(scope.rabbits.mesh);
+
+                    // The wolfs
+                    scope.wolfs = new Wolfs();
+                    object.add(scope.wolfs.mesh);
+
+                    // The hedgehogs
+                    scope.hedgehogs = new Hedgehogs();
+                    object.add(scope.hedgehogs.mesh);
+
+                    // The ballon
+                    scope.ballon = object.children[4];
+
+                    // The airship
+                    scope.airship = object.children[7];
+
+                    scope.objectSet.add(object);
+                    scope.loading = false;
+
+                    console.log("Cow AABB");
+                    console.log(scope.cows.cows[0].AABB.min_x);
+                    console.log(scope.cows.cows[0].AABB.max_x);
+                    console.log(scope.cows.cows[0].AABB.min_y);
+                    console.log(scope.cows.cows[0].AABB.max_y);
+                    console.log(scope.cows.cows[0].AABB.min_z);
+                    console.log(scope.cows.cows[0].AABB.max_z);
+
+                    console.log("One Tree AABB");
+                    console.log(scope.forest.trees[0].AABB.min_x);
+                    console.log(scope.forest.trees[0].AABB.max_x);
+                    console.log(scope.forest.trees[0].AABB.min_y);
+                    console.log(scope.forest.trees[0].AABB.max_y);
+                    console.log(scope.forest.trees[0].AABB.min_z);
+                    console.log(scope.forest.trees[0].AABB.max_z);
+
+                    scope.cows.cows[0].AABB.detect(
+                            scope.forest.trees[0].AABB
+                        )
+
+                    scope.cows.cows[0].trigger("forward", 20);
+
+                    scope.rabbits.rabbits[0].trigger("forward", 20);
+
+                    scope.wolfs.wolfs[0].trigger("forward", 20);
+                } );
+            };
+            objLoader2.loadMtl( './models/moon_star_island.mtl', null, onLoadMtl );
+            this.scene.add(this.objectSet);
+            
+        };
+
+        Outer.prototype.resizeDisplayGL = function () {
+            this.controls.handleResize();
+
+            this.recalcAspectRatio();
+            this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
+
+            this.updateCamera();
+        };
+
+        Outer.prototype.recalcAspectRatio = function () {
+            this.aspectRatio = ( this.canvas.offsetHeight === 0 ) ? 1 : this.canvas.offsetWidth / this.canvas.offsetHeight;
+        };
+
+        Outer.prototype.resetCamera = function () {
+            this.camera.position.copy( this.cameraDefaults.posCamera );
+            this.cameraTarget.copy( this.cameraDefaults.posCameraTarget );
+
+            this.updateCamera();
+        };
+
+        Outer.prototype.updateCamera = function () {
+            this.camera.aspect = this.aspectRatio;
+            this.camera.lookAt( this.cameraTarget );
+            this.camera.updateProjectionMatrix();
+        };
+
+        Outer.prototype.render = function () {
+            if ( ! this.renderer.autoClear ) this.renderer.clear();
+            this.controls.update();
+            this.renderer.render( this.scene, this.camera );
+        };
+
+        return Outer;
+
+    })();
+
+    var app = new Outer( document.getElementById( 'example' ) );
+
+    var resizeWindow = function () {
+        app.resizeDisplayGL();
+    };
+
+    var render = function () {
+        requestAnimationFrame( render );
+        app.render();
+        app.cows.loop();
+        app.rabbits.loop();
+        app.wolfs.loop();
+        //console.log(app.forest.trees[0].mesh.position.x);
+        // if(!app.loading)
+        //    app.forest.trees[0].mesh.rotation.y += 0.01;
+        //     if(app.cows.cows[0].AABB.iscollision)
+        //         console.log("Oops");
+    };
+
+    function init(event){
+        console.log( 'Starting initialisation phase...' );
+        app.initGL();
+        app.resizeDisplayGL();
+        app.initContent();
+        render();
+    }
+
+    window.addEventListener( 'resize', resizeWindow, false );
+    window.addEventListener('load', init, false);
+
+</script>
+</body>
+</html>
