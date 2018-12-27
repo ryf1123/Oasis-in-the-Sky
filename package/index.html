@@ -83,6 +83,11 @@
 <script src="js/Rabbits.js"></script>
 <script src="js/Wolfs.js"></script>
 <script src="js/Hedgehogs.js"></script>
+<script src="js/Water.js"></script>
+<script src="js/Lensflare.js"></script>
+<!--
+<script src="js/Sky.js"></script>
+-->
 <script>
 
     'use strict';
@@ -126,13 +131,16 @@
             // Others
             this.ballon = null;
             this.airship = null;
+            this.lake = null;
+            this.timeDay = 0;
         }
 
         Outer.prototype.initGL = function () {
             this.renderer = new THREE.WebGLRenderer( {
                 canvas: this.canvas,
                 antialias: true,
-                autoClear: true
+                autoClear: true,
+                alpha: true
             } );
             this.renderer.setClearColor( 0x050505 );
 
@@ -142,21 +150,65 @@
             this.resetCamera();
             this.controls = new THREE.TrackballControls( this.camera, this.renderer.domElement );
 
-            var ambientLight = new THREE.AmbientLight( 0x404040 );
-            var directionalLight1 = new THREE.DirectionalLight( 0xC0C090 );
-            var directionalLight2 = new THREE.DirectionalLight( 0xC0C090 );
-
+            //var ambientLight = new THREE.AmbientLight( 0x404040, 0.0 );
+            var sunLight = new THREE.PointLight(0x010101, 0.01, 700, 2);
+            sunLight.position.set(500, 500, 200);
+            var directionalLight1 = new THREE.DirectionalLight( 0x808080 );
+            var directionalLight2 = new THREE.DirectionalLight( 0x808080 );
+            // 0xC0C090
             directionalLight1.position.set( -100, -50, 100 );
             directionalLight2.position.set( 100, 50, -100 );
 
             this.scene.add( directionalLight1 );
             this.scene.add( directionalLight2 );
-            this.scene.add( ambientLight );
+
+            this.sunZoom();
+
         };
+
+        // Some misc
+        Outer.prototype.ballonUp = function() {
+        //function ballonUp() {
+            var _this = this;
+            TweenMax.to(this.ballon.position, 6, {y: 200, ease:Power1.easeInOut, onComplete:function(){_this.ballonDown()}});
+        }
+
+        Outer.prototype.ballonDown = function() {
+        //function ballonDown() {
+            var _this = this;
+            TweenMax.to(this.ballon.position, 6, {y: 0, ease:Power1.easeInOut, onComplete:function(){_this.ballonUp()}});
+        }
+
+        Outer.prototype.sunZoom = function() {
+            var dirLight = new THREE.DirectionalLight( 0xffffff, 0.05 );
+            dirLight.position.set( 5000, 1000, -1000 ).normalize();
+            dirLight.color.setHSL( 0.1, 0.7, 0.5 );
+            var _ss = this.scene;
+            _ss.add( dirLight );
+            // lensflares
+            var textureLoader = new THREE.TextureLoader();
+            var textureFlare0 = textureLoader.load( 'assets/lensflare/lensflare0.png' );
+            var textureFlare3 = textureLoader.load( 'assets/lensflare/lensflare3.png' );
+            addLight( 0.55, 0.9, 0.5, -5000, 1000, -1000 );
+            addLight( 0.08, 0.8, 0.5, -5000, 1000, -1000 );
+            addLight( 0.995, 0.5, 0.9, -5000, 1000, -1000 );
+            function addLight( h, s, l, x, y, z) {
+                var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
+                light.color.setHSL( h, s, l );
+                light.position.set( x, y, z );
+                _ss.add( light );
+                var lensflare = new THREE.Lensflare();
+                lensflare.addElement( new THREE.LensflareElement( textureFlare0, 700, 0, light.color ) );
+                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 60, 0.6 ) );
+                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 70, 0.7 ) );
+                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 120, 0.9 ) );
+                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 70, 1 ) );
+                light.add( lensflare );
+            }
+        }
 
         Outer.prototype.initContent = function () {
             var modelName = 'low-poly world';
-            //this._reportProgress( { detail: { text: 'Loading: ' + modelName } } );
 
             var scope = this;
             var objLoader2 = new THREE.OBJLoader2();
@@ -164,7 +216,7 @@
             var onLoadMtl = function ( materials, materialCreator ) {
                 var objLoader = new THREE.OBJLoader();
                 objLoader.setMaterials( materialCreator );
-                objLoader.load( './models/moon_star_island.obj', function ( object ) {
+                objLoader.load( './models/moon_star_island_dark.obj', function ( object ) {
                     // Here append anythins
 
                     // The Trees
@@ -192,6 +244,9 @@
 
                     // The airship
                     scope.airship = object.children[7];
+
+                    scope.lake = new Lake();
+                    object.add(scope.lake.mesh);
 
                     scope.objectSet.add(object);
                     scope.loading = false;
@@ -221,10 +276,25 @@
                     scope.rabbits.rabbits[0].trigger("forward", 20);
 
                     scope.wolfs.wolfs[0].trigger("forward", 20);
+
+                    scope.ballonUp();
                 } );
             };
-            objLoader2.loadMtl( './models/moon_star_island.mtl', null, onLoadMtl );
+            objLoader2.loadMtl( './models/moon_star_island_dark.mtl', null, onLoadMtl );
+            
             this.scene.add(this.objectSet);
+            this.loadSkyBox();
+            // this.scene.fog = new THREE.FogExp2(0xffffff,0.001);
+            // this.sky = new THREE.Sky();
+            // this.sky.scale.setScalar( 1000000 );
+            // this.scene.add( this.sky );
+
+            // var uniforms = this.sky.material.uniforms;
+            // uniforms.turbidity.value = 10;
+            // uniforms.rayleigh.value = 2;
+            // uniforms.luminance.value = 1;
+            // uniforms.mieCoefficient.value = 0.005;
+            // uniforms.mieDirectionalG.value = 0.8;
             
         };
 
@@ -260,6 +330,36 @@
             this.renderer.render( this.scene, this.camera );
         };
 
+        Outer.prototype.loadSkyBox = function() {
+            var aCubeMap = THREE.ImageUtils.loadTextureCube([
+                'assets/img/px.jpg',
+                'assets/img/nx.jpg',
+                'assets/img/py.jpg',
+                'assets/img/ny.jpg',
+                'assets/img/pz.jpg',
+                'assets/img/nz.jpg'
+            ]);
+            aCubeMap.format = THREE.RGBFormat;
+
+            var aShader = THREE.ShaderLib['cube'];
+            aShader.uniforms['tCube'].value = aCubeMap;
+
+            var aSkyBoxMaterial = new THREE.ShaderMaterial({
+                fragmentShader: aShader.fragmentShader,
+                vertexShader: aShader.vertexShader,
+                uniforms: aShader.uniforms,
+                depthWrite: false,
+                side: THREE.BackSide
+            });
+
+            var aSkybox = new THREE.Mesh(
+              new THREE.BoxGeometry(1000000, 1000000, 1000000),
+              aSkyBoxMaterial
+            );
+        
+            this.scene.add(aSkybox);
+        }
+
         return Outer;
 
     })();
@@ -276,6 +376,7 @@
         app.cows.loop();
         app.rabbits.loop();
         app.wolfs.loop();
+        app.lake.animate();
         //console.log(app.forest.trees[0].mesh.position.x);
         // if(!app.loading)
         //    app.forest.trees[0].mesh.rotation.y += 0.01;

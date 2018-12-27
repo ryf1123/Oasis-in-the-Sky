@@ -64,7 +64,7 @@ var Cows = function() {
 	  	this.bellySpot1.rotation.y = Math.PI/2;
 	  	this.body.add(this.bellySpot1);
 
-	  	var bellySpotGeom2 = new THREE.CubeGeometry(10, 10, 0.1);
+	  	var bellySpotGeom2 = new THREE.CubeGeometry(10, 10, 0.5);
 		bellySpotGeom2.vertices[6].x += 3;
 		bellySpotGeom2.vertices[7].x += 3;
 		this.bellySpot2 = new THREE.Mesh(bellySpotGeom2, darkMat);
@@ -78,7 +78,7 @@ var Cows = function() {
 	  	this.bellySpot3.position.z = -10;
 	  	this.body.add(this.bellySpot3);
 
-	  	var bellySpotGeom4 = new THREE.CubeGeometry(10, 0.1, 20);
+	  	var bellySpotGeom4 = new THREE.CubeGeometry(10, 0.5, 20);
 	  	this.bellySpot4 = new THREE.Mesh(bellySpotGeom4, darkMat);
 	  	this.bellySpot4.position.x = 15;
 	  	this.bellySpot4.position.y = 18;
@@ -86,7 +86,7 @@ var Cows = function() {
 	  	//this.bellySpot4.rotation.y = Math.PI/2;
 	  	this.body.add(this.bellySpot4);
 
-	  	var bellySpotGeom5 = new THREE.CubeGeometry(10, 14, 0.1);
+	  	var bellySpotGeom5 = new THREE.CubeGeometry(10, 14, 0.5);
 	  	this.bellySpot5 = new THREE.Mesh(bellySpotGeom5, darkMat);
 	  	this.bellySpot5.position.x = -15;
 	  	this.bellySpot5.position.y = 11;
@@ -94,35 +94,35 @@ var Cows = function() {
 	  	// this.bellySpot5.rotation.y = Math.PI/2;
 	  	this.body.add(this.bellySpot5);
 
-	  	var bellySpotGeom6 = new THREE.CubeGeometry(0.1, 14, 6);
+	  	var bellySpotGeom6 = new THREE.CubeGeometry(0.5, 14, 6);
 	  	this.bellySpot6 = new THREE.Mesh(bellySpotGeom6, darkMat);
 	  	this.bellySpot6.position.x = -20;
 	  	this.bellySpot6.position.y = 11;
 	  	this.bellySpot6.position.z = 6.9;
 	  	this.body.add(this.bellySpot6);
 
-	  	var bellySpotGeom7 = new THREE.CubeGeometry(10, 0.1, 6);
+	  	var bellySpotGeom7 = new THREE.CubeGeometry(10, 0.5, 6);
 	  	this.bellySpot7 = new THREE.Mesh(bellySpotGeom7, darkMat);
 	  	this.bellySpot7.position.x = -15;
 	  	this.bellySpot7.position.y = 18;
 	  	this.bellySpot7.position.z = 6.9;
 	  	this.body.add(this.bellySpot7);
 
-	  	var bellySpotGeom8 = new THREE.CubeGeometry(16, 16, 0.1);
+	  	var bellySpotGeom8 = new THREE.CubeGeometry(16, 16, 0.5);
 	  	this.bellySpot8 = new THREE.Mesh(bellySpotGeom8, darkMat);
 	  	this.bellySpot8.position.x = -8;
 	  	this.bellySpot8.position.y = 10;
 	  	this.bellySpot8.position.z = -10;
 	  	this.body.add(this.bellySpot8);
 	  	
-	  	var bellySpotGeom9 = new THREE.CubeGeometry(16, 0.1, 6);
+	  	var bellySpotGeom9 = new THREE.CubeGeometry(16, 0.5, 6);
 	  	this.bellySpot9 = new THREE.Mesh(bellySpotGeom9, darkMat);
 	  	this.bellySpot9.position.x = -8;
 	  	this.bellySpot9.position.y = 18;
 	  	this.bellySpot9.position.z = -7;
 	  	this.body.add(this.bellySpot9);
 
-	  	var bellySpotGeom10 = new THREE.CubeGeometry(8, 8, 0.1);
+	  	var bellySpotGeom10 = new THREE.CubeGeometry(8, 8, 0.5);
 	  	this.bellySpot10 = new THREE.Mesh(bellySpotGeom10, darkMat);
 	  	this.bellySpot10.position.x = 0;
 	  	this.bellySpot10.position.y = 4;
@@ -271,7 +271,7 @@ var Cows = function() {
 	  	this.eyeR.position.z = -this.eyeL.position.z;
 	  	this.head.add(this.eyeR);
 	  	// SPOTS
-	  	var spotGeom = new THREE.CubeGeometry( 10, 6, 0.1 );
+	  	var spotGeom = new THREE.CubeGeometry( 10, 6, 0.5 );
 	  	this.eyePotR = new THREE.Mesh(spotGeom, blackMat);
 	  	this.eyePotR.position.z = 6.3;
 	  	this.eyePotR.position.y = 0;
