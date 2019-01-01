@@ -87,7 +87,7 @@ We made a house, added more interaction, enlarge our island and made animals mov
 
 ### 1-2 Almost final version
 
-The house and the island are combined together. The collision detection is also almost finished.
+The house and the island are combined together. The collision detection is also almost finished. Besides, it's beautiful, isn't it?
 
 ![image-20190102074030160](assets/image-20190102074030160.png)
 
