@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Moon and Star Island</title>
     <meta charset="utf-8">
@@ -15,6 +16,7 @@
             border: none;
             cursor: default;
         }
+
         #info {
             color: #fff;
             position: absolute;
@@ -22,14 +24,16 @@
             width: 100%;
             text-align: center;
             z-index: 100;
-            display:block;
+            display: block;
         }
+
         #info a {
             color: #f00;
             font-weight: bold;
             text-decoration: underline;
             cursor: pointer
         }
+
         #glFullscreen {
             width: 80%;
             height: 80%;
@@ -39,6 +43,7 @@
             overflow: hidden;
             z-index: 0;
         }
+
         #example {
             width: 100%;
             height: 100%;
@@ -46,9 +51,11 @@
             left: 0;
             background-color: #000000;
         }
+
         #feedback {
             color: darkorange;
         }
+
         #dat {
             user-select: none;
             position: absolute;
@@ -56,6 +63,7 @@
             top: 0;
             z-Index: 200;
         }
+
         #blocker {
 
             position: absolute;
@@ -63,7 +71,7 @@
             width: 100%;
             height: 100%;
 
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
 
         }
 
@@ -94,597 +102,619 @@
             cursor: pointer;
 
         }
+
+        #video {
+            position: fixed;
+            width: 0%;
+            height: 0%;
+            left: 0;
+            bottom: 0;
+        }
     </style>
 </head>
 
 <body>
-<!-- <div id="glFullscreen">
+    <!-- <div id="glFullscreen">
     <canvas id="example"></canvas>
 </div>
 <div id="dat">
 
 </div> -->
 
-<script src="src/three.js"></script>
-<script src="src/PointerLockControls.js"></script>
-<script src="src/Detector.js"></script>
-<script src="src/TrackballControls.js"></script>
-<script src="src/MTLLoader.js"></script>
-<script src="src/OBJLoader.js"></script>
-<script src="src/dat.gui.min.js"></script>
-<script src="src/LoaderSupport.js"></script>
-<script src="src/OBJLoader2.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
-<script src="js/myAABB.js"></script>
-<script src="js/Forest.js"></script>
-<script src="js/Decoration.js"></script>
-<script src="js/Cows.js"></script>
-<script src="js/Rabbits.js"></script>
-<script src="js/Wolfs.js"></script>
-<script src="js/Hedgehogs.js"></script>
-<script src="js/Water.js"></script>
-<script src="js/Lensflare.js"></script>
-<!--
+    <script src="src/three.js"></script>
+    <script src="src/PointerLockControls.js"></script>
+    <script src="src/Detector.js"></script>
+    <script src="src/TrackballControls.js"></script>
+    <script src="src/MTLLoader.js"></script>
+    <script src="src/OBJLoader.js"></script>
+    <script src="src/dat.gui.min.js"></script>
+    <script src="src/LoaderSupport.js"></script>
+    <script src="src/OBJLoader2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
+    <script src="js/myAABB.js"></script>
+    <script src="js/Forest.js"></script>
+    <script src="js/Decoration.js"></script>
+    <script src="js/Cows.js"></script>
+    <script src="js/Rabbits.js"></script>
+    <script src="js/Wolfs.js"></script>
+    <script src="js/Hedgehogs.js"></script>
+    <script src="js/Water.js"></script>
+    <script src="js/Lensflare.js"></script>
+    <script src="js/House.js"></script>
+    <script src="js/dat.gui.min.js"></script>
+    <video id="video" autoplay controls>
+        <source src="video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+    </video>
+    <!--
 <script src="js/Sky.js"></script>
 -->
-<div id="blocker">
+    <div id="blocker">
 
-    <div id="instructions">
-        <span style="font-size:40px">Click to play</span>
-        <br />
-        (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+        <div id="instructions">
+            <span style="font-size:40px">Click to play</span>
+            <br />
+            (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+        </div>
+
     </div>
 
-</div>
+    <script>
 
-<script>
+        'use strict';
 
-    'use strict';
+        var controls;
 
-    var controls;
+        var moveForward = false;
 
-    var moveForward = false;
+        var moveBackward = false;
 
-    var moveBackward = false;
+        var moveLeft = false;
 
-    var moveLeft = false;
+        var moveRight = false;
 
-    var moveRight = false;
+        var canJump = false;
 
-    var canJump = false;
+        var velocity = new THREE.Vector3();
 
-    var velocity = new THREE.Vector3();
-    
-    var Outer = (function () {
+        var Outer = (function () {
 
-        var Validator = THREE.LoaderSupport.Validator;
+            var Validator = THREE.LoaderSupport.Validator;
 
-        //function Outer( elementToBindTo ) {
-        function Outer() {
-            this.renderer = null;
-            // this.canvas = elementToBindTo;
-            this.aspectRatio = 1;
-            // this.recalcAspectRatio();
+            //function Outer( elementToBindTo ) {
+            function Outer() {
+                this.renderer = null;
+                // this.canvas = elementToBindTo;
+                this.aspectRatio = 1;
+                // this.recalcAspectRatio();
 
-            this.scene = null;
-            
-            this.floatcameraDefaults = {
-                posCamera: new THREE.Vector3( 0.0, 175.0, 500.0 ),
-                posCameraTarget: new THREE.Vector3( 0, 0, 0 ),
-                near: 0.1,
-                far: 10000,
-                fov: 45
-            };
-            this.floatcamera = null;
-            this.floatcameraTarget = this.floatcameraDefaults.posCameraTarget;
+                this.scene = null;
 
-            this.viewcamera = null;
+                this.floatcameraDefaults = {
+                    posCamera: new THREE.Vector3(0.0, 175.0, 500.0),
+                    posCameraTarget: new THREE.Vector3(0, 0, 0),
+                    near: 0.1,
+                    far: 10000,
+                    fov: 45
+                };
+                this.floatcamera = null;
+                this.floatcameraTarget = this.floatcameraDefaults.posCameraTarget;
 
-            // Flags
-            this.loading = true;
+                this.viewcamera = null;
 
-            // Those Assets
-            this.floatcontrol = null;
-            this.viewcontrol = null;
+                // Flags
+                this.loading = true;
 
-            this.objectSet = new THREE.Group();
-            // Animals
-            this.forest = null;
-            this.cows = null;
-            this.rabbits = null;
-            this.wolfs = null;
-            this.hedgehogs = null;
-            // Others
-            this.ballon = null;
-            this.airship = null;
-            this.lake = null;
-            this.timeDay = 0;
+                // Those Assets
+                this.floatcontrol = null;
+                this.viewcontrol = null;
 
-            // raycaster
-            this.raycaster = null;
+                this.objectSet = new THREE.Group();
+                // House
+                this.house = null;
+                // Animals
+                this.forest = null;
+                this.cows = null;
+                this.rabbits = null;
+                this.wolfs = null;
+                this.hedgehogs = null;
+                // Others
+                this.ballon = null;
+                this.airship = null;
+                this.lake = null;
+                this.timeDay = 0;
 
-            // flag
-            this.isfloating = null;
-            
+                // raycaster
+                this.raycaster = null;
 
-            // more
-            this.prevTime = performance.now();
-            
-            // velocity.x = 0;
-            // velocity.y = 0;
-            // velocity.z = 0;
-            this.direction = new THREE.Vector3();
-            this.vertex = new THREE.Vector3();
-        }
-
-        Outer.prototype.initGL = function () {
-            this.isfloating = false;
-
-            this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-
-            this.renderer = new THREE.WebGLRenderer( {
-                // canvas: this.canvas,
-                antialias: true,
-                autoClear: true,
-                alpha: true
-            } );
-            this.renderer.setClearColor( 0x050505 );
+                // flag
+                this.isfloating = null;
 
 
-            this.scene = new THREE.Scene();
+                // more
+                this.prevTime = performance.now();
 
-            // Modify here
-            // this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
-
-            // this.scene.background = new THREE.Color( 0xffffff );
-
-            var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
-            light.position.set( 0.5, 1, 0.75 );
-            this.scene.add( light );
-
-
-            this.floatcamera = new THREE.PerspectiveCamera( this.floatcameraDefaults.fov, this.aspectRatio, this.floatcameraDefaults.near, this.floatcameraDefaults.far );
-            
-            this.floatcontrol = new THREE.TrackballControls( this.floatcamera, this.renderer.domElement );
-
-            this.viewcamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight , 1, 1000 );
-            this.viewcontrol = new THREE.PointerLockControls( this.viewcamera );
-
-            controls = this.viewcontrol;
-            
-            var blocker = document.getElementById( 'blocker' );
-            var instructions = document.getElementById( 'instructions' );
-
-            instructions.addEventListener( 'click', function () {
-
-                controls.lock();
-                // console.log("What's wrong here");
-
-            }, false );
-
-            controls.addEventListener( 'lock', function () {
-
-                instructions.style.display = 'none';
-                blocker.style.display = 'none';
-
-            } );
-
-            controls.addEventListener( 'unlock', function () {
-
-                blocker.style.display = 'block';
-                instructions.style.display = '';
-
-            } );
-
-            this.viewcontrol.getObject().position.x = 150;
-            //this.viewcontrol.getObject().position.y = 0;
-            this.viewcontrol.getObject().position.z = 200;
-
-            this.scene.add(controls.getObject());
-
-            // handle !
-
-            this.resetCamera();
-            // keyboard
-            document.addEventListener( 'keydown', this.onKeyDown, false );
-            document.addEventListener( 'keyup', this.onKeyUp, false );
-
-            //var ambientLight = new THREE.AmbientLight( 0x404040, 0.0 );
-            var sunLight = new THREE.PointLight(0x010101, 0.01, 700, 2);
-            sunLight.position.set(500, 500, 200);
-            var directionalLight1 = new THREE.DirectionalLight( 0x808080 );
-            var directionalLight2 = new THREE.DirectionalLight( 0x808080 );
-            // 0xC0C090
-            directionalLight1.position.set( -100, -50, 100 );
-            directionalLight2.position.set( 100, 50, -100 );
-
-            this.scene.add( directionalLight1 );
-            this.scene.add( directionalLight2 );
-
-            this.sunZoom();
-
-        };
-
-        // Some misc
-        Outer.prototype.ballonUp = function() {
-        //function ballonUp() {
-            var _this = this;
-            TweenMax.to(this.ballon.position, 6, {y: 200, ease:Power1.easeInOut, onComplete:function(){_this.ballonDown()}});
-        }
-
-        Outer.prototype.ballonDown = function() {
-        //function ballonDown() {
-            var _this = this;
-            TweenMax.to(this.ballon.position, 6, {y: 0, ease:Power1.easeInOut, onComplete:function(){_this.ballonUp()}});
-        }
-
-        Outer.prototype.sunZoom = function() {
-            var dirLight = new THREE.DirectionalLight( 0xffffff, 0.05 );
-            dirLight.position.set( 5000, 1000, -1000 ).normalize();
-            dirLight.color.setHSL( 0.1, 0.7, 0.5 );
-            var _ss = this.scene;
-            _ss.add( dirLight );
-            // lensflares
-            var textureLoader = new THREE.TextureLoader();
-            var textureFlare0 = textureLoader.load( 'assets/lensflare/lensflare0.png' );
-            var textureFlare3 = textureLoader.load( 'assets/lensflare/lensflare3.png' );
-            addLight( 0.55, 0.9, 0.5, -5000, 1000, -1000 );
-            addLight( 0.08, 0.8, 0.5, -5000, 1000, -1000 );
-            addLight( 0.995, 0.5, 0.9, -5000, 1000, -1000 );
-            function addLight( h, s, l, x, y, z) {
-                var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
-                light.color.setHSL( h, s, l );
-                light.position.set( x, y, z );
-                _ss.add( light );
-                var lensflare = new THREE.Lensflare();
-                lensflare.addElement( new THREE.LensflareElement( textureFlare0, 700, 0, light.color ) );
-                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 60, 0.6 ) );
-                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 70, 0.7 ) );
-                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 120, 0.9 ) );
-                lensflare.addElement( new THREE.LensflareElement( textureFlare3, 70, 1 ) );
-                light.add( lensflare );
+                // velocity.x = 0;
+                // velocity.y = 0;
+                // velocity.z = 0;
+                this.direction = new THREE.Vector3();
+                this.vertex = new THREE.Vector3();
             }
-        }
 
-        Outer.prototype.initContent = function () {
-            var modelName = 'low-poly world';
+            Outer.prototype.initGL = function () {
+                this.isfloating = false;
 
-            var scope = this;
-            var objLoader2 = new THREE.OBJLoader2();
+                this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
 
-            var onLoadMtl = function ( materials, materialCreator ) {
-                var objLoader = new THREE.OBJLoader();
-                objLoader.setMaterials( materialCreator );
-                objLoader.load( './models/moon_star_island_dark.obj', function ( object ) {
-                    // Here append anythins
+                this.renderer = new THREE.WebGLRenderer({
+                    // canvas: this.canvas,
+                    antialias: true,
+                    autoClear: true,
+                    alpha: true
+                });
+                this.renderer.setClearColor(0x050505);
 
-                    // The Trees
-                    scope.forest = new Forest();
-                    object.add(scope.forest.mesh);
-                
-                    // The cows
-                    scope.cows = new Cows();
-                    object.add(scope.cows.mesh);
 
-                    // The rabbits
-                    scope.rabbits = new Rabbits();
-                    object.add(scope.rabbits.mesh);
+                this.scene = new THREE.Scene();
 
-                    // The wolfs
-                    scope.wolfs = new Wolfs();
-                    object.add(scope.wolfs.mesh);
+                // Modify here
+                // this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 
-                    // The hedgehogs
-                    scope.hedgehogs = new Hedgehogs();
-                    object.add(scope.hedgehogs.mesh);
+                // this.scene.background = new THREE.Color( 0xffffff );
 
-                    // The ballon
-                    scope.ballon = object.children[4];
+                var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+                light.position.set(0.5, 1, 0.75);
+                this.scene.add(light);
 
-                    // The airship
-                    scope.airship = object.children[7];
 
-                    scope.lake = new Lake();
-                    object.add(scope.lake.mesh);
+                this.floatcamera = new THREE.PerspectiveCamera(this.floatcameraDefaults.fov, this.aspectRatio, this.floatcameraDefaults.near, this.floatcameraDefaults.far);
 
-                    scope.objectSet.add(object);
-                    scope.loading = false;
+                this.floatcontrol = new THREE.TrackballControls(this.floatcamera, this.renderer.domElement);
 
-                    console.log("Cow AABB");
-                    console.log(scope.cows.cows[0].AABB.min_x);
-                    console.log(scope.cows.cows[0].AABB.max_x);
-                    console.log(scope.cows.cows[0].AABB.min_y);
-                    console.log(scope.cows.cows[0].AABB.max_y);
-                    console.log(scope.cows.cows[0].AABB.min_z);
-                    console.log(scope.cows.cows[0].AABB.max_z);
+                this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+                this.viewcontrol = new THREE.PointerLockControls(this.viewcamera);
 
-                    console.log("One Tree AABB");
-                    console.log(scope.forest.trees[0].AABB.min_x);
-                    console.log(scope.forest.trees[0].AABB.max_x);
-                    console.log(scope.forest.trees[0].AABB.min_y);
-                    console.log(scope.forest.trees[0].AABB.max_y);
-                    console.log(scope.forest.trees[0].AABB.min_z);
-                    console.log(scope.forest.trees[0].AABB.max_z);
+                controls = this.viewcontrol;
 
-                    scope.cows.cows[0].AABB.detect(
+                var blocker = document.getElementById('blocker');
+                var instructions = document.getElementById('instructions');
+
+                instructions.addEventListener('click', function () {
+
+                    controls.lock();
+                    // console.log("What's wrong here");
+
+                }, false);
+
+                controls.addEventListener('lock', function () {
+
+                    instructions.style.display = 'none';
+                    blocker.style.display = 'none';
+
+                });
+
+                controls.addEventListener('unlock', function () {
+
+                    blocker.style.display = 'block';
+                    instructions.style.display = '';
+
+                });
+
+                this.viewcontrol.getObject().position.x = 150;
+                //this.viewcontrol.getObject().position.y = 0;
+                this.viewcontrol.getObject().position.z = 200;
+
+                this.scene.add(controls.getObject());
+
+                // handle !
+
+                this.resetCamera();
+                // keyboard
+                document.addEventListener('keydown', this.onKeyDown, false);
+                document.addEventListener('keyup', this.onKeyUp, false);
+
+                //var ambientLight = new THREE.AmbientLight( 0x404040, 0.0 );
+                var sunLight = new THREE.PointLight(0x010101, 0.01, 700, 2);
+                sunLight.position.set(500, 500, 200);
+                var directionalLight1 = new THREE.DirectionalLight(0x808080);
+                var directionalLight2 = new THREE.DirectionalLight(0x808080);
+                // 0xC0C090
+                directionalLight1.position.set(-100, -50, 100);
+                directionalLight2.position.set(100, 50, -100);
+
+                this.scene.add(directionalLight1);
+                this.scene.add(directionalLight2);
+
+                this.sunZoom();
+
+            };
+
+            // Some misc
+            Outer.prototype.ballonUp = function () {
+                //function ballonUp() {
+                var _this = this;
+                TweenMax.to(this.ballon.position, 6, { y: 200, ease: Power1.easeInOut, onComplete: function () { _this.ballonDown() } });
+            }
+
+            Outer.prototype.ballonDown = function () {
+                //function ballonDown() {
+                var _this = this;
+                TweenMax.to(this.ballon.position, 6, { y: 0, ease: Power1.easeInOut, onComplete: function () { _this.ballonUp() } });
+            }
+
+            Outer.prototype.sunZoom = function () {
+                var dirLight = new THREE.DirectionalLight(0xffffff, 0.05);
+                dirLight.position.set(5000, 1000, -1000).normalize();
+                dirLight.color.setHSL(0.1, 0.7, 0.5);
+                var _ss = this.scene;
+                _ss.add(dirLight);
+                // lensflares
+                var textureLoader = new THREE.TextureLoader();
+                var textureFlare0 = textureLoader.load('assets/lensflare/lensflare0.png');
+                var textureFlare3 = textureLoader.load('assets/lensflare/lensflare3.png');
+                addLight(0.55, 0.9, 0.5, -5000, 1000, -1000);
+                addLight(0.08, 0.8, 0.5, -5000, 1000, -1000);
+                addLight(0.995, 0.5, 0.9, -5000, 1000, -1000);
+                function addLight(h, s, l, x, y, z) {
+                    var light = new THREE.PointLight(0xffffff, 1.5, 2000);
+                    light.color.setHSL(h, s, l);
+                    light.position.set(x, y, z);
+                    _ss.add(light);
+                    var lensflare = new THREE.Lensflare();
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare0, 700, 0, light.color));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 60, 0.6));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 70, 0.7));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 120, 0.9));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 70, 1));
+                    light.add(lensflare);
+                }
+            }
+
+            Outer.prototype.initContent = function () {
+                var modelName = 'low-poly world';
+
+                var scope = this;
+                var objLoader2 = new THREE.OBJLoader2();
+
+                var onLoadMtl = function (materials, materialCreator) {
+                    var objLoader = new THREE.OBJLoader();
+                    objLoader.setMaterials(materialCreator);
+                    objLoader.load('./models/moon_star_island_dark.obj', function (object) {
+                        // Here append anythins
+
+                        // The house
+                        scope.house = new House();
+                        scope.house._mesh.position.set(150, 99, 0);
+                        scope.house._mesh.scale.set(0.2, 0.2, 0.2);
+                        object.add(scope.house._mesh);
+
+                        // The Trees
+                        scope.forest = new Forest();
+                        object.add(scope.forest.mesh);
+
+                        // The cows
+                        scope.cows = new Cows();
+                        object.add(scope.cows.mesh);
+
+                        // The rabbits
+                        scope.rabbits = new Rabbits();
+                        object.add(scope.rabbits.mesh);
+
+                        // The wolfs
+                        scope.wolfs = new Wolfs();
+                        object.add(scope.wolfs.mesh);
+
+                        // The hedgehogs
+                        scope.hedgehogs = new Hedgehogs();
+                        object.add(scope.hedgehogs.mesh);
+
+                        // The ballon
+                        scope.ballon = object.children[4];
+
+                        // The airship
+                        scope.airship = object.children[7];
+
+                        scope.lake = new Lake();
+                        object.add(scope.lake.mesh);
+
+                        scope.objectSet.add(object);
+                        scope.loading = false;
+
+                        console.log("Cow AABB");
+                        console.log(scope.cows.cows[0].AABB.min_x);
+                        console.log(scope.cows.cows[0].AABB.max_x);
+                        console.log(scope.cows.cows[0].AABB.min_y);
+                        console.log(scope.cows.cows[0].AABB.max_y);
+                        console.log(scope.cows.cows[0].AABB.min_z);
+                        console.log(scope.cows.cows[0].AABB.max_z);
+
+                        console.log("One Tree AABB");
+                        console.log(scope.forest.trees[0].AABB.min_x);
+                        console.log(scope.forest.trees[0].AABB.max_x);
+                        console.log(scope.forest.trees[0].AABB.min_y);
+                        console.log(scope.forest.trees[0].AABB.max_y);
+                        console.log(scope.forest.trees[0].AABB.min_z);
+                        console.log(scope.forest.trees[0].AABB.max_z);
+
+                        scope.cows.cows[0].AABB.detect(
                             scope.forest.trees[0].AABB
                         )
 
-                    scope.cows.cows[0].trigger("forward", 20);
+                        scope.cows.cows[0].trigger("forward", 20);
 
-                    scope.rabbits.rabbits[0].trigger("forward", 20);
+                        scope.rabbits.rabbits[0].trigger("forward", 20);
 
-                    scope.wolfs.wolfs[0].trigger("forward", 20);
+                        scope.wolfs.wolfs[0].trigger("forward", 20);
 
-                    scope.ballonUp();
-                } );
+                        scope.ballonUp();
+                    });
+                };
+                objLoader2.loadMtl('./models/moon_star_island_dark.mtl', null, onLoadMtl);
+
+                this.scene.add(this.objectSet);
+                this.loadSkyBox();
+                // this.scene.fog = new THREE.FogExp2(0xffffff,0.001);
+                // this.sky = new THREE.Sky();
+                // this.sky.scale.setScalar( 1000000 );
+                // this.scene.add( this.sky );
+
+                // var uniforms = this.sky.material.uniforms;
+                // uniforms.turbidity.value = 10;
+                // uniforms.rayleigh.value = 2;
+                // uniforms.luminance.value = 1;
+                // uniforms.mieCoefficient.value = 0.005;
+                // uniforms.mieDirectionalG.value = 0.8;
+
             };
-            objLoader2.loadMtl( './models/moon_star_island_dark.mtl', null, onLoadMtl );
-            
-            this.scene.add(this.objectSet);
-            this.loadSkyBox();
-            // this.scene.fog = new THREE.FogExp2(0xffffff,0.001);
-            // this.sky = new THREE.Sky();
-            // this.sky.scale.setScalar( 1000000 );
-            // this.scene.add( this.sky );
 
-            // var uniforms = this.sky.material.uniforms;
-            // uniforms.turbidity.value = 10;
-            // uniforms.rayleigh.value = 2;
-            // uniforms.luminance.value = 1;
-            // uniforms.mieCoefficient.value = 0.005;
-            // uniforms.mieDirectionalG.value = 0.8;
-            
-        };
+            Outer.prototype.resizeDisplayGL = function () {
+                if (this.isfloating)
+                    this.floatcontrol.handleResize();
+                else {
+                    this.viewcamera.aspect = window.innerWidth / window.innerHeight;
+                    this.viewcamera.updateProjectionMatrix();
+                }
+                // this.recalcAspectRatio();
+                // this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
 
-        Outer.prototype.resizeDisplayGL = function () {
-            if(this.isfloating)
-                this.floatcontrol.handleResize();
-            else{
-                this.viewcamera.aspect = window.innerWidth / window.innerHeight;
-                this.viewcamera.updateProjectionMatrix();
-            }
-            // this.recalcAspectRatio();
-            // this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.updateCamera();
+            };
 
-            this.renderer.setSize( window.innerWidth, window.innerHeight );
-            this.updateCamera();
-        };
+            Outer.prototype.recalcAspectRatio = function () {
+                this.aspectRatio = (this.canvas.offsetHeight === 0) ? 1 : this.canvas.offsetWidth / this.canvas.offsetHeight;
+            };
 
-        Outer.prototype.recalcAspectRatio = function () {
-            this.aspectRatio = ( this.canvas.offsetHeight === 0 ) ? 1 : this.canvas.offsetWidth / this.canvas.offsetHeight;
-        };
+            Outer.prototype.resetCamera = function () {
+                if (this.isfloating) {
+                    this.floatcamera.position.copy(this.floatcameraDefaults.posCamera);
+                    this.floatcameraTarget.copy(this.floatcameraDefaults.posCameraTarget);
+                }
 
-        Outer.prototype.resetCamera = function () {
-            if(this.isfloating){
-                this.floatcamera.position.copy( this.floatcameraDefaults.posCamera );
-                this.floatcameraTarget.copy( this.floatcameraDefaults.posCameraTarget );
-            }
+                this.updateCamera();
+            };
 
-            this.updateCamera();
-        };
-
-        Outer.prototype.updateCamera = function () {
-            if(this.isfloating){
-                this.floatcamera.aspect = this.aspectRatio;
-                this.floatcamera.lookAt( this.floatcameraTarget );
-                this.floatcamera.updateProjectionMatrix();
-            }
-            else{
-                if (controls.isLocked === true) {
-                    // console.log("First Mark: ");
-                    // console.log(controls.getObject().position);
-                    // console.log("Yep I am in");
-
-                    this.raycaster.ray.origin.copy(this.viewcontrol.getObject().position);
-                    this.raycaster.ray.origin.y += 6;
-
-                    var intersections = this.raycaster.intersectObjects(this.scene.children, true);
-                    var onObject = intersections.length > 0;
-                    var time = performance.now();
-                    var delta = (time - this.prevTime) / 1000;
-
-                    // console.log("Time and delta flag");
-                    // console.log(time);
-                    // console.log(delta);
-                    // console.log(this.prevTime);
-
-                    velocity.x -= velocity.x * 10.0 * delta;
-                    velocity.z -= velocity.z * 10.0 * delta;
-                    velocity.y -= 9.8 * 10.0 * delta;
-
-                    // console.log("Forward state:");
-                    // console.log(moveForward);
-
-                    this.direction.z = Number(moveForward) - Number(moveBackward);
-                    this.direction.x = Number(moveLeft) - Number(moveRight);
-                    this.direction.normalize(); // this ensures consistent movements in all directions
-
-                    // console.log("Velocity Mark: ");
-                    // console.log(velocity);
-
-                    // console.log("Direcition Mark: ");
-                    // console.log(this.direction);
-
-                    if (moveForward || moveBackward) velocity.z -= this.direction.z * 100.0 * delta;
-                    if (moveLeft || moveRight) velocity.x -= this.direction.x * 100.0 * delta;
-                    // console.log(this.direction);
-                    // console.log(velocity);
-
-                    // console.log(onObject);
-                    if (onObject == true) {
-                        velocity.y = Math.max(0, velocity.y);
-                        canJump = true;
-                    }
-
-                    this.viewcontrol.getObject().translateX(velocity.x * delta );
-                    this.viewcontrol.getObject().translateY(velocity.y * delta );
-                    this.viewcontrol.getObject().translateZ(velocity.z * delta );
-
-
-                    // console.log("Second Mark: ");
-                    // console.log(controls.getObject().position);
-                    
-                    if (this.viewcontrol.getObject().position.y < 60) {
+            Outer.prototype.updateCamera = function () {
+                if (this.isfloating) {
+                    this.floatcamera.aspect = this.aspectRatio;
+                    this.floatcamera.lookAt(this.floatcameraTarget);
+                    this.floatcamera.updateProjectionMatrix();
+                }
+                else {
+                    if (controls.isLocked === true) {
+                        // console.log("First Mark: ");
+                        // console.log(controls.getObject().position);
                         // console.log("Yep I am in");
-                        velocity.y = 0;
-                        this.viewcontrol.getObject().position.y = 100;
-                        canJump = true;
 
-                     }
-                    this.prevTime = time;
+                        this.raycaster.ray.origin.copy(this.viewcontrol.getObject().position);
+                        this.raycaster.ray.origin.y += 6;
+
+                        var intersections = this.raycaster.intersectObjects(this.scene.children, true);
+                        var onObject = intersections.length > 0;
+                        var time = performance.now();
+                        var delta = (time - this.prevTime) / 1000;
+
+                        // console.log("Time and delta flag");
+                        // console.log(time);
+                        // console.log(delta);
+                        // console.log(this.prevTime);
+
+                        velocity.x -= velocity.x * 10.0 * delta;
+                        velocity.z -= velocity.z * 10.0 * delta;
+                        velocity.y -= 9.8 * 10.0 * delta;
+
+                        // console.log("Forward state:");
+                        // console.log(moveForward);
+
+                        this.direction.z = Number(moveForward) - Number(moveBackward);
+                        this.direction.x = Number(moveLeft) - Number(moveRight);
+                        this.direction.normalize(); // this ensures consistent movements in all directions
+
+                        // console.log("Velocity Mark: ");
+                        // console.log(velocity);
+
+                        // console.log("Direcition Mark: ");
+                        // console.log(this.direction);
+
+                        if (moveForward || moveBackward) velocity.z -= this.direction.z * 100.0 * delta;
+                        if (moveLeft || moveRight) velocity.x -= this.direction.x * 100.0 * delta;
+                        // console.log(this.direction);
+                        // console.log(velocity);
+
+                        // console.log(onObject);
+                        if (onObject == true) {
+                            velocity.y = Math.max(0, velocity.y);
+                            canJump = true;
+                        }
+
+                        this.viewcontrol.getObject().translateX(velocity.x * delta);
+                        this.viewcontrol.getObject().translateY(velocity.y * delta);
+                        this.viewcontrol.getObject().translateZ(velocity.z * delta);
+
+
+                        // console.log("Second Mark: ");
+                        // console.log(controls.getObject().position);
+
+                        if (this.viewcontrol.getObject().position.y < 60) {
+                            // console.log("Yep I am in");
+                            velocity.y = 0;
+                            this.viewcontrol.getObject().position.y = 100;
+                            canJump = true;
+
+                        }
+                        this.prevTime = time;
+                    }
+                }
+            };
+
+            Outer.prototype.render = function () {
+                if (!this.renderer.autoClear) this.renderer.clear();
+                if (this.isfloating) {
+                    this.floatcontrol.update();
+                    this.renderer.render(this.scene, this.floatcamera);
+                }
+                else {
+                    //this.viewcontrol.update();
+                    this.renderer.render(this.scene, this.viewcamera);
+                    this.updateCamera();
+                }
+            };
+
+            Outer.prototype.loadSkyBox = function () {
+                var aCubeMap = THREE.ImageUtils.loadTextureCube([
+                    'assets/img/px.jpg',
+                    'assets/img/nx.jpg',
+                    'assets/img/py.jpg',
+                    'assets/img/ny.jpg',
+                    'assets/img/pz.jpg',
+                    'assets/img/nz.jpg'
+                ]);
+                aCubeMap.format = THREE.RGBFormat;
+
+                var aShader = THREE.ShaderLib['cube'];
+                aShader.uniforms['tCube'].value = aCubeMap;
+
+                var aSkyBoxMaterial = new THREE.ShaderMaterial({
+                    fragmentShader: aShader.fragmentShader,
+                    vertexShader: aShader.vertexShader,
+                    uniforms: aShader.uniforms,
+                    depthWrite: false,
+                    side: THREE.BackSide
+                });
+
+                var aSkybox = new THREE.Mesh(
+                    new THREE.BoxGeometry(100000000, 100000000, 100000000),
+                    aSkyBoxMaterial
+                );
+
+                this.scene.add(aSkybox);
+            }
+
+            // Key board
+            Outer.prototype.onKeyDown = function (event) {
+
+                switch (event.keyCode) {
+
+                    case 38: // up
+                    case 87: // w
+                        moveForward = true;
+                        // console.log("Move test");
+                        break;
+
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = true;
+                        break;
+
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = true;
+                        break;
+
+                    case 39: // right
+                    case 68: // d
+                        moveRight = true;
+                        break;
+
+                    case 32: // space
+                        console.log("Jump test");
+                        if (canJump == true)
+                            velocity.y += 30;
+                        canJump = false;
+                        break;
+
+                }
+
+            };
+
+            Outer.prototype.onKeyUp = function (event) {
+
+                switch (event.keyCode) {
+
+                    case 38: // up
+                    case 87: // w
+                        moveForward = false;
+                        break;
+
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = false;
+                        break;
+
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = false;
+                        break;
+
+                    case 39: // right
+                    case 68: // d
+                        moveRight = false;
+                        break;
+
                 }
             }
+
+            return Outer;
+
+        })();
+
+        // var app = new Outer( document.getElementById( 'example' ) );
+
+        var app = new Outer();
+
+        var resizeWindow = function () {
+            app.resizeDisplayGL();
         };
 
-        Outer.prototype.render = function () {
-            if ( ! this.renderer.autoClear ) this.renderer.clear();
-            if(this.isfloating){
-                this.floatcontrol.update();
-                this.renderer.render( this.scene, this.floatcamera );
-            }
-            else{
-                //this.viewcontrol.update();
-                this.renderer.render( this.scene, this.viewcamera );
-                this.updateCamera();
-            }
+        var render = function () {
+            requestAnimationFrame(render);
+            app.render();
+            // app.cows.loop();
+            // app.rabbits.loop();
+            // app.wolfs.loop();
+            // app.lake.animate();
+            //console.log(app.forest.trees[0].mesh.position.x);
+            // if(!app.loading)
+            //    app.forest.trees[0].mesh.rotation.y += 0.01;
+            //     if(app.cows.cows[0].AABB.iscollision)
+            //         console.log("Oops");
         };
 
-        Outer.prototype.loadSkyBox = function() {
-            var aCubeMap = THREE.ImageUtils.loadTextureCube([
-                'assets/img/px.jpg',
-                'assets/img/nx.jpg',
-                'assets/img/py.jpg',
-                'assets/img/ny.jpg',
-                'assets/img/pz.jpg',
-                'assets/img/nz.jpg'
-            ]);
-            aCubeMap.format = THREE.RGBFormat;
+        function init(event) {
+            console.log('Starting initialisation phase...');
+            app.initGL();
+            app.renderer.setPixelRatio(window.devicePixelRatio);
+            app.renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(app.renderer.domElement);
 
-            var aShader = THREE.ShaderLib['cube'];
-            aShader.uniforms['tCube'].value = aCubeMap;
-
-            var aSkyBoxMaterial = new THREE.ShaderMaterial({
-                fragmentShader: aShader.fragmentShader,
-                vertexShader: aShader.vertexShader,
-                uniforms: aShader.uniforms,
-                depthWrite: false,
-                side: THREE.BackSide
-            });
-
-            var aSkybox = new THREE.Mesh(
-              new THREE.BoxGeometry(100000000, 100000000, 100000000),
-              aSkyBoxMaterial
-            );
-        
-            this.scene.add(aSkybox);
+            app.resizeDisplayGL();
+            app.initContent();
+            render();
         }
 
-        // Key board
-        Outer.prototype.onKeyDown = function( event ) {
+        window.addEventListener('resize', resizeWindow, false);
+        window.addEventListener('load', init, false);
 
-        switch ( event.keyCode ) {
-
-            case 38: // up
-            case 87: // w
-                moveForward = true;
-                // console.log("Move test");
-                break;
-
-            case 37: // left
-            case 65: // a
-                moveLeft = true;
-                break;
-
-            case 40: // down
-            case 83: // s
-                moveBackward = true;
-                break;
-
-            case 39: // right
-            case 68: // d
-                moveRight = true;
-                break;
-
-            case 32: // space
-                console.log("Jump test");
-                if ( canJump == true ) 
-                    velocity.y += 30;
-                canJump = false;
-                break;
-
-            }
-
-        };
-
-        Outer.prototype.onKeyUp = function( event ) {
-
-            switch ( event.keyCode ) {
-
-                case 38: // up
-                case 87: // w
-                    moveForward = false;
-                    break;
-
-                case 37: // left
-                case 65: // a
-                    moveLeft = false;
-                    break;
-
-                case 40: // down
-                case 83: // s
-                    moveBackward = false;
-                    break;
-
-                case 39: // right
-                case 68: // d
-                    moveRight = false;
-                    break;
-
-            }
-        }
-
-        return Outer;
-
-    })();
-
-    // var app = new Outer( document.getElementById( 'example' ) );
-
-    var app = new Outer();
-
-    var resizeWindow = function () {
-        app.resizeDisplayGL();
-    };
-
-    var render = function () {
-        requestAnimationFrame( render );
-        app.render();
-        // app.cows.loop();
-        // app.rabbits.loop();
-        // app.wolfs.loop();
-        // app.lake.animate();
-        //console.log(app.forest.trees[0].mesh.position.x);
-        // if(!app.loading)
-        //    app.forest.trees[0].mesh.rotation.y += 0.01;
-        //     if(app.cows.cows[0].AABB.iscollision)
-        //         console.log("Oops");
-    };
-
-    function init(event){
-        console.log( 'Starting initialisation phase...' );
-        app.initGL();
-        app.renderer.setPixelRatio( window.devicePixelRatio );
-        app.renderer.setSize( window.innerWidth, window.innerHeight );
-        document.body.appendChild( app.renderer.domElement );
-
-        app.resizeDisplayGL();
-        app.initContent();
-        render();
-    }
-
-    window.addEventListener( 'resize', resizeWindow, false );
-    window.addEventListener('load', init, false);
-
-</script>
+    </script>
 </body>
+
 </html>
