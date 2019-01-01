@@ -31,8 +31,8 @@
             cursor: pointer
         }
         #glFullscreen {
-            width: 100%;
-            height: 100vh;
+            width: 80%;
+            height: 80%;
             min-width: 640px;
             min-height: 360px;
             position: relative;
@@ -56,19 +56,58 @@
             top: 0;
             z-Index: 200;
         }
+        #blocker {
+
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+
+            background-color: rgba(0,0,0,0.5);
+
+        }
+
+        #instructions {
+
+            width: 100%;
+            height: 100%;
+
+            display: -webkit-box;
+            display: -moz-box;
+            display: box;
+
+            -webkit-box-orient: horizontal;
+            -moz-box-orient: horizontal;
+            box-orient: horizontal;
+
+            -webkit-box-pack: center;
+            -moz-box-pack: center;
+            box-pack: center;
+
+            -webkit-box-align: center;
+            -moz-box-align: center;
+            box-align: center;
+
+            color: #ffffff;
+            text-align: center;
+
+            cursor: pointer;
+
+        }
     </style>
 </head>
 
 <body>
-<div id="glFullscreen">
+<!-- <div id="glFullscreen">
     <canvas id="example"></canvas>
 </div>
 <div id="dat">
 
-</div>
+</div> -->
 
-<script src="src/Detector.js"></script>
 <script src="src/three.js"></script>
+<script src="src/PointerLockControls.js"></script>
+<script src="src/Detector.js"></script>
 <script src="src/TrackballControls.js"></script>
 <script src="src/MTLLoader.js"></script>
 <script src="src/OBJLoader.js"></script>
@@ -88,39 +127,66 @@
 <!--
 <script src="js/Sky.js"></script>
 -->
+<div id="blocker">
+
+    <div id="instructions">
+        <span style="font-size:40px">Click to play</span>
+        <br />
+        (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+    </div>
+
+</div>
+
 <script>
 
     'use strict';
 
-    // Other Important Object
-    
+    var controls;
 
+    var moveForward = false;
+
+    var moveBackward = false;
+
+    var moveLeft = false;
+
+    var moveRight = false;
+
+    var canJump = false;
+
+    var velocity = new THREE.Vector3();
+    
     var Outer = (function () {
 
         var Validator = THREE.LoaderSupport.Validator;
 
-        function Outer( elementToBindTo ) {
+        //function Outer( elementToBindTo ) {
+        function Outer() {
             this.renderer = null;
-            this.canvas = elementToBindTo;
+            // this.canvas = elementToBindTo;
             this.aspectRatio = 1;
-            this.recalcAspectRatio();
+            // this.recalcAspectRatio();
 
             this.scene = null;
-            this.cameraDefaults = {
+            
+            this.floatcameraDefaults = {
                 posCamera: new THREE.Vector3( 0.0, 175.0, 500.0 ),
                 posCameraTarget: new THREE.Vector3( 0, 0, 0 ),
                 near: 0.1,
                 far: 10000,
                 fov: 45
             };
-            this.camera = null;
-            this.cameraTarget = this.cameraDefaults.posCameraTarget;
+            this.floatcamera = null;
+            this.floatcameraTarget = this.floatcameraDefaults.posCameraTarget;
+
+            this.viewcamera = null;
 
             // Flags
             this.loading = true;
 
             // Those Assets
-            this.controls = null;
+            this.floatcontrol = null;
+            this.viewcontrol = null;
+
             this.objectSet = new THREE.Group();
             // Animals
             this.forest = null;
@@ -133,22 +199,95 @@
             this.airship = null;
             this.lake = null;
             this.timeDay = 0;
+
+            // raycaster
+            this.raycaster = null;
+
+            // flag
+            this.isfloating = null;
+            
+
+            // more
+            this.prevTime = performance.now();
+            
+            // velocity.x = 0;
+            // velocity.y = 0;
+            // velocity.z = 0;
+            this.direction = new THREE.Vector3();
+            this.vertex = new THREE.Vector3();
         }
 
         Outer.prototype.initGL = function () {
+            this.isfloating = false;
+
+            this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+
             this.renderer = new THREE.WebGLRenderer( {
-                canvas: this.canvas,
+                // canvas: this.canvas,
                 antialias: true,
                 autoClear: true,
                 alpha: true
             } );
             this.renderer.setClearColor( 0x050505 );
 
+
             this.scene = new THREE.Scene();
 
-            this.camera = new THREE.PerspectiveCamera( this.cameraDefaults.fov, this.aspectRatio, this.cameraDefaults.near, this.cameraDefaults.far );
+            // Modify here
+            // this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+
+            // this.scene.background = new THREE.Color( 0xffffff );
+
+            var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+            light.position.set( 0.5, 1, 0.75 );
+            this.scene.add( light );
+
+
+            this.floatcamera = new THREE.PerspectiveCamera( this.floatcameraDefaults.fov, this.aspectRatio, this.floatcameraDefaults.near, this.floatcameraDefaults.far );
+            
+            this.floatcontrol = new THREE.TrackballControls( this.floatcamera, this.renderer.domElement );
+
+            this.viewcamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight , 1, 1000 );
+            this.viewcontrol = new THREE.PointerLockControls( this.viewcamera );
+
+            controls = this.viewcontrol;
+            
+            var blocker = document.getElementById( 'blocker' );
+            var instructions = document.getElementById( 'instructions' );
+
+            instructions.addEventListener( 'click', function () {
+
+                controls.lock();
+                // console.log("What's wrong here");
+
+            }, false );
+
+            controls.addEventListener( 'lock', function () {
+
+                instructions.style.display = 'none';
+                blocker.style.display = 'none';
+
+            } );
+
+            controls.addEventListener( 'unlock', function () {
+
+                blocker.style.display = 'block';
+                instructions.style.display = '';
+
+            } );
+
+            this.viewcontrol.getObject().position.x = 150;
+            //this.viewcontrol.getObject().position.y = 0;
+            this.viewcontrol.getObject().position.z = 200;
+
+            this.scene.add(controls.getObject());
+
+            // handle !
+
             this.resetCamera();
-            this.controls = new THREE.TrackballControls( this.camera, this.renderer.domElement );
+            // keyboard
+            document.addEventListener( 'keydown', this.onKeyDown, false );
+            document.addEventListener( 'keyup', this.onKeyUp, false );
 
             //var ambientLight = new THREE.AmbientLight( 0x404040, 0.0 );
             var sunLight = new THREE.PointLight(0x010101, 0.01, 700, 2);
@@ -299,11 +438,16 @@
         };
 
         Outer.prototype.resizeDisplayGL = function () {
-            this.controls.handleResize();
+            if(this.isfloating)
+                this.floatcontrol.handleResize();
+            else{
+                this.viewcamera.aspect = window.innerWidth / window.innerHeight;
+                this.viewcamera.updateProjectionMatrix();
+            }
+            // this.recalcAspectRatio();
+            // this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
 
-            this.recalcAspectRatio();
-            this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
-
+            this.renderer.setSize( window.innerWidth, window.innerHeight );
             this.updateCamera();
         };
 
@@ -312,22 +456,98 @@
         };
 
         Outer.prototype.resetCamera = function () {
-            this.camera.position.copy( this.cameraDefaults.posCamera );
-            this.cameraTarget.copy( this.cameraDefaults.posCameraTarget );
+            if(this.isfloating){
+                this.floatcamera.position.copy( this.floatcameraDefaults.posCamera );
+                this.floatcameraTarget.copy( this.floatcameraDefaults.posCameraTarget );
+            }
 
             this.updateCamera();
         };
 
         Outer.prototype.updateCamera = function () {
-            this.camera.aspect = this.aspectRatio;
-            this.camera.lookAt( this.cameraTarget );
-            this.camera.updateProjectionMatrix();
+            if(this.isfloating){
+                this.floatcamera.aspect = this.aspectRatio;
+                this.floatcamera.lookAt( this.floatcameraTarget );
+                this.floatcamera.updateProjectionMatrix();
+            }
+            else{
+                if (controls.isLocked === true) {
+                    // console.log("First Mark: ");
+                    // console.log(controls.getObject().position);
+                    // console.log("Yep I am in");
+
+                    this.raycaster.ray.origin.copy(this.viewcontrol.getObject().position);
+                    this.raycaster.ray.origin.y += 6;
+
+                    var intersections = this.raycaster.intersectObjects(this.scene.children, true);
+                    var onObject = intersections.length > 0;
+                    var time = performance.now();
+                    var delta = (time - this.prevTime) / 1000;
+
+                    // console.log("Time and delta flag");
+                    // console.log(time);
+                    // console.log(delta);
+                    // console.log(this.prevTime);
+
+                    velocity.x -= velocity.x * 10.0 * delta;
+                    velocity.z -= velocity.z * 10.0 * delta;
+                    velocity.y -= 9.8 * 10.0 * delta;
+
+                    // console.log("Forward state:");
+                    // console.log(moveForward);
+
+                    this.direction.z = Number(moveForward) - Number(moveBackward);
+                    this.direction.x = Number(moveLeft) - Number(moveRight);
+                    this.direction.normalize(); // this ensures consistent movements in all directions
+
+                    // console.log("Velocity Mark: ");
+                    // console.log(velocity);
+
+                    // console.log("Direcition Mark: ");
+                    // console.log(this.direction);
+
+                    if (moveForward || moveBackward) velocity.z -= this.direction.z * 100.0 * delta;
+                    if (moveLeft || moveRight) velocity.x -= this.direction.x * 100.0 * delta;
+                    // console.log(this.direction);
+                    // console.log(velocity);
+
+                    // console.log(onObject);
+                    if (onObject == true) {
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
+                    }
+
+                    this.viewcontrol.getObject().translateX(velocity.x * delta );
+                    this.viewcontrol.getObject().translateY(velocity.y * delta );
+                    this.viewcontrol.getObject().translateZ(velocity.z * delta );
+
+
+                    // console.log("Second Mark: ");
+                    // console.log(controls.getObject().position);
+                    
+                    if (this.viewcontrol.getObject().position.y < 60) {
+                        // console.log("Yep I am in");
+                        velocity.y = 0;
+                        this.viewcontrol.getObject().position.y = 100;
+                        canJump = true;
+
+                     }
+                    this.prevTime = time;
+                }
+            }
         };
 
         Outer.prototype.render = function () {
             if ( ! this.renderer.autoClear ) this.renderer.clear();
-            this.controls.update();
-            this.renderer.render( this.scene, this.camera );
+            if(this.isfloating){
+                this.floatcontrol.update();
+                this.renderer.render( this.scene, this.floatcamera );
+            }
+            else{
+                //this.viewcontrol.update();
+                this.renderer.render( this.scene, this.viewcamera );
+                this.updateCamera();
+            }
         };
 
         Outer.prototype.loadSkyBox = function() {
@@ -353,18 +573,84 @@
             });
 
             var aSkybox = new THREE.Mesh(
-              new THREE.BoxGeometry(1000000, 1000000, 1000000),
+              new THREE.BoxGeometry(100000000, 100000000, 100000000),
               aSkyBoxMaterial
             );
         
             this.scene.add(aSkybox);
         }
 
+        // Key board
+        Outer.prototype.onKeyDown = function( event ) {
+
+        switch ( event.keyCode ) {
+
+            case 38: // up
+            case 87: // w
+                moveForward = true;
+                // console.log("Move test");
+                break;
+
+            case 37: // left
+            case 65: // a
+                moveLeft = true;
+                break;
+
+            case 40: // down
+            case 83: // s
+                moveBackward = true;
+                break;
+
+            case 39: // right
+            case 68: // d
+                moveRight = true;
+                break;
+
+            case 32: // space
+                console.log("Jump test");
+                if ( canJump == true ) 
+                    velocity.y += 30;
+                canJump = false;
+                break;
+
+            }
+
+        };
+
+        Outer.prototype.onKeyUp = function( event ) {
+
+            switch ( event.keyCode ) {
+
+                case 38: // up
+                case 87: // w
+                    moveForward = false;
+                    break;
+
+                case 37: // left
+                case 65: // a
+                    moveLeft = false;
+                    break;
+
+                case 40: // down
+                case 83: // s
+                    moveBackward = false;
+                    break;
+
+                case 39: // right
+                case 68: // d
+                    moveRight = false;
+                    break;
+
+            }
+        }
+
         return Outer;
 
     })();
 
-    var app = new Outer( document.getElementById( 'example' ) );
+    // var app = new Outer( document.getElementById( 'example' ) );
+
+    var app = new Outer();
 
     var resizeWindow = function () {
         app.resizeDisplayGL();
@@ -373,10 +659,10 @@
     var render = function () {
         requestAnimationFrame( render );
         app.render();
-        app.cows.loop();
-        app.rabbits.loop();
-        app.wolfs.loop();
-        app.lake.animate();
+        // app.cows.loop();
+        // app.rabbits.loop();
+        // app.wolfs.loop();
+        // app.lake.animate();
         //console.log(app.forest.trees[0].mesh.position.x);
         // if(!app.loading)
         //    app.forest.trees[0].mesh.rotation.y += 0.01;
@@ -387,6 +673,10 @@
     function init(event){
         console.log( 'Starting initialisation phase...' );
         app.initGL();
+        app.renderer.setPixelRatio( window.devicePixelRatio );
+        app.renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( app.renderer.domElement );
+
         app.resizeDisplayGL();
         app.initContent();
         render();
