@@ -365,7 +365,7 @@ var Cows = function() {
 	Cow.prototype.move = function(duration){
 		var _this = this;
 		side = duration * _this.lspeed;
-		axisPos = [_this.mesh.position.x + side * Math.cos(_this.mesh.rotation.y), _this.mesh.position.y, _this.mesh.position.z - Math.sin(_this.mesh.rotation.y)];
+		axisPos = [_this.mesh.position.x + side * Math.cos(_this.mesh.rotation.y), _this.mesh.position.y, _this.mesh.position.z - side * Math.sin(_this.mesh.rotation.y)];
 	  	TweenMax.to(this.mesh.position, duration, {x: axisPos[0], y:axisPos[1], z:axisPos[2], ease:Power1.easeInOut, onComplete:function(){_this.trigger("ready"), null}});
 	}
 
@@ -433,6 +433,16 @@ var Cows = function() {
 	  		default:
 	  			// do nothing
 	  	}
+	  	var temp = this;
+	  	this.AABB.update(
+	  					calculateMyAABB( 
+    								[temp.mesh.rotation.x, temp.mesh.rotation.y, temp.mesh.rotation.z], 
+    								[temp.mesh.position.x, temp.mesh.position.y, temp.mesh.position.z], 
+    								temp.objLength*temp.mesh.scale.x, 
+    								temp.objWidth*temp.mesh.scale.y, 
+    								temp.objHeight*temp.mesh.scale.z
+    								)
+	  					);
 	}
 
 

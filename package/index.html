@@ -180,6 +180,8 @@
 
             var Validator = THREE.LoaderSupport.Validator;
 
+            var viewPara = [4, 4, 4];
+
             //function Outer( elementToBindTo ) {
             function Outer() {
                 this.renderer = null;
@@ -238,6 +240,8 @@
                 // velocity.z = 0;
                 this.direction = new THREE.Vector3();
                 this.vertex = new THREE.Vector3();
+
+                this.viewAABB = null;
             }
 
             Outer.prototype.initGL = function () {
@@ -270,7 +274,7 @@
 
                 this.floatcontrol = new THREE.TrackballControls(this.floatcamera, this.renderer.domElement);
 
-                this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+                this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.2, 1000);
                 this.viewcontrol = new THREE.PointerLockControls(this.viewcamera);
 
                 controls = this.viewcontrol;
@@ -302,7 +306,17 @@
                 this.viewcontrol.getObject().position.x = 150;
                 //this.viewcontrol.getObject().position.y = 0;
                 this.viewcontrol.getObject().position.z = 200;
-
+                
+                this.viewAABB = new myAABB(
+                                    calculateMyAABB( 
+                                        [this.viewcontrol.getObject().rotation.x, this.viewcontrol.getObject().rotation.y, this.viewcontrol.getObject().rotation.z], 
+                                        [this.viewcontrol.getObject().position.x, this.viewcontrol.getObject().position.y, this.viewcontrol.getObject().position.z], 
+                                        viewPara[0]*this.viewcontrol.getObject().scale.x, 
+                                        viewPara[1]*this.viewcontrol.getObject().scale.y, 
+                                        viewPara[2]*this.viewcontrol.getObject().scale.z
+                                    )
+                                );
+                
                 this.scene.add(controls.getObject());
 
                 // handle !
@@ -378,12 +392,12 @@
                 var onLoadMtl = function (materials, materialCreator) {
                     var objLoader = new THREE.OBJLoader();
                     objLoader.setMaterials(materialCreator);
-                    objLoader.load('./models/moon_star_island_dark.obj', function (object) {
+                    objLoader.load('./models/floating_islands.obj', function (object) {
                         // Here append anythins
 
                         // The house
                         scope.house = new House();
-                        scope.house._mesh.position.set(150, 99, 0);
+                        scope.house._mesh.position.set(150, 99, 200);
                         scope.house._mesh.scale.set(0.2, 0.2, 0.2);
                         object.add(scope.house._mesh);
 
@@ -448,7 +462,7 @@
                         scope.ballonUp();
                     });
                 };
-                objLoader2.loadMtl('./models/moon_star_island_dark.mtl', null, onLoadMtl);
+                objLoader2.loadMtl('./models/floating_islands.mtl', null, onLoadMtl);
 
                 this.scene.add(this.objectSet);
                 this.loadSkyBox();
@@ -510,6 +524,8 @@
 
                         var intersections = this.raycaster.intersectObjects(this.scene.children, true);
                         var onObject = intersections.length > 0;
+
+                        // console.log("The intersections:" + intersections.length)
                         var time = performance.now();
                         var delta = (time - this.prevTime) / 1000;
 
@@ -546,13 +562,38 @@
                             canJump = true;
                         }
 
+                        
+                        
+                        //else{
                         this.viewcontrol.getObject().translateX(velocity.x * delta);
                         this.viewcontrol.getObject().translateY(velocity.y * delta);
                         this.viewcontrol.getObject().translateZ(velocity.z * delta);
+                        //}
 
 
-                        // console.log("Second Mark: ");
-                        // console.log(controls.getObject().position);
+                        // console.log("Angle Mark: ");
+                        // console.log(controls.getObject().rotation);
+
+                        this.viewAABB.update(
+                                            calculateMyAABB( 
+                                                [this.viewcontrol.getObject().rotation.x, this.viewcontrol.getObject().rotation.y, this.viewcontrol.getObject().rotation.z], 
+                                                [this.viewcontrol.getObject().position.x, this.viewcontrol.getObject().position.y, this.viewcontrol.getObject().position.z], 
+                                                viewPara[0]*this.viewcontrol.getObject().scale.x, 
+                                                viewPara[1]*this.viewcontrol.getObject().scale.y, 
+                                                viewPara[2]*this.viewcontrol.getObject().scale.z
+                                            )
+                                        );
+
+                        // console.log("Caerma AABB:");
+                        // console.log(this.viewAABB);
+                        this.collideDetect();
+                        var ifCollide = this.viewAABB.iscollision;
+                        if (ifCollide) {
+                            this.viewcontrol.getObject().translateX(-velocity.x * delta);
+                            this.viewcontrol.getObject().translateY(-velocity.y * delta);
+                            this.viewcontrol.getObject().translateZ(-velocity.z * delta);
+                            this.viewAABB.collisionOver();
+                        }
 
                         if (this.viewcontrol.getObject().position.y < 60) {
                             // console.log("Yep I am in");
@@ -673,6 +714,19 @@
                 }
             }
 
+            Outer.prototype.collideDetect = function() {
+                // For camera
+                var obj_camera = this.viewAABB;
+                // With trees
+                for (var i = 0; i < this.forest.trees.length; i++) {
+                    obj_camera.detect(this.forest.trees[i].AABB);
+                }
+                // if (obj_camera.iscollision) {
+                //     console.log("Oops");
+                //     obj_camera.collisionOver();
+                // }
+            }
+
             return Outer;
 
         })();
@@ -688,15 +742,16 @@
         var render = function () {
             requestAnimationFrame(render);
             app.render();
-            // app.cows.loop();
-            // app.rabbits.loop();
-            // app.wolfs.loop();
-            // app.lake.animate();
+
             //console.log(app.forest.trees[0].mesh.position.x);
-            // if(!app.loading)
-            //    app.forest.trees[0].mesh.rotation.y += 0.01;
-            //     if(app.cows.cows[0].AABB.iscollision)
-            //         console.log("Oops");
+            if(!app.loading){
+                //app.forest.trees[0].mesh.rotation.y += 0.01;
+                app.cows.loop();
+                app.rabbits.loop();
+                app.wolfs.loop();
+                app.lake.animate();
+            }
+                
         };
 
         function init(event) {
