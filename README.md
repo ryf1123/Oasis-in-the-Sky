@@ -95,7 +95,7 @@ The house and the island are combined together. The collision detection is also 
 
 
 
-###1-3 AABB collision with trees
+### 1-3 AABB collision with trees
 
 Perspective changing added, together with many many many trees!
 
