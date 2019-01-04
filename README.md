@@ -93,3 +93,18 @@ The house and the island are combined together. The collision detection is also 
 
 ![image-20190102074036041](assets/image-20190102074036041.png)
 
+
+
+###1-3 AABB collision with trees
+
+Perspective changing added, together with many many many trees!
+
+(Really tired work)
+
+In addition, those trees are combined with AABB collision detection, which means we won't going through them anymore.
+
+![image-with_trees](./assets/image-with_trees.png)
+
+Some problems occur that fps is decreasing with many objects rendered.
+
+Late work will be discussed soon.

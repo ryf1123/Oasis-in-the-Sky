@@ -419,7 +419,7 @@ var Rabbits = function(){
 
 	var scale_base = 0.15;
 	var rabbitsInfo = [
-		[[200, 99.6,  -50], [scale_base, scale_base, scale_base],  0],
+		[[165, 98.85, -10], [scale_base, scale_base, scale_base],  Math.PI/2],
 	];
 
 	for (var i = rabbitsInfo.length - 1; i >= 0; i--) {

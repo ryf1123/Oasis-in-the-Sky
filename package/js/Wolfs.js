@@ -338,7 +338,7 @@ var Wolfs = function() {
 	this.wolfs = new Array();
 	var scale_base = 0.2;
 	var wolfsInfo = [
-		[[150, 102,  -50], [scale_base, scale_base, scale_base],  -Math.PI/4],
+		[[150, 102,  100], [scale_base*0.8, scale_base*0.8, scale_base*0.8],  -Math.PI/4],
 	];
 
 	for (var i = wolfsInfo.length - 1; i >= 0; i--) {

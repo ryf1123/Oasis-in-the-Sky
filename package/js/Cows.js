@@ -251,7 +251,7 @@ var Cows = function() {
 	
 	  	this.eyeL = new THREE.Mesh(eyeGeom, whiteMat);
 	  	this.eyeL.position.x = 0;
-	  	this.eyeL.position.z = 5.5;
+	  	this.eyeL.position.z = 5.7;
 	  	this.eyeL.position.y = 0;
 	  	this.eyeL.castShadow = true;
 	  	this.eyeL.rotation.y = -Math.PI/2;
@@ -449,7 +449,14 @@ var Cows = function() {
 	this.cows = new Array();
 	var scale_base = 0.15;
 	var cowsInfo = [
-		[[200, 101,  50], [scale_base, scale_base, scale_base],  Math.PI/4],
+		[[200, 101, -30], [scale_base, scale_base, scale_base],  Math.PI/4],
+		[[220, 101, -25], [scale_base, scale_base, scale_base],  Math.PI/3],
+		[[235, 101, -35], [scale_base*1.1, scale_base*1.1, scale_base*1.1],  Math.PI],
+		[[199, 99.6, -45], [scale_base*0.5, scale_base*0.5, scale_base*0.5],  Math.PI/8],
+		[[205, 101, -60], [scale_base, scale_base, scale_base],  -Math.PI/4],
+		[[210, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/2],
+		[[225, 101, -120], [scale_base, scale_base, scale_base],  Math.PI/2],
+		[[185, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/7],
 	];
 
 	for (var i = 0; i < cowsInfo.length; i++) {

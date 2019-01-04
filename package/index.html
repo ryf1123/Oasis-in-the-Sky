@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Moon and Star Island</title>
+    <title>Low Poly Islands</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
@@ -114,6 +114,7 @@
 </head>
 
 <body>
+    <embed src="music/bgm2.mp3" hidden="true" autostart="true" loop="true"> 
     <!-- <div id="glFullscreen">
     <canvas id="example"></canvas>
 </div>
@@ -139,10 +140,11 @@
     <script src="js/Wolfs.js"></script>
     <script src="js/Hedgehogs.js"></script>
     <script src="js/Water.js"></script>
+    <script src="js/Sky.js"></script>
     <script src="js/Lensflare.js"></script>
     <script src="js/House.js"></script>
-    <script src="js/dat.gui.min.js"></script>
-    <video id="video" autoplay controls>
+    <!-- <script src="js/dat.gui.min.js"></script> -->
+    <video id="video" autoplay vcontrol>
         <source src="video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
     </video>
     <!--
@@ -162,7 +164,9 @@
 
         'use strict';
 
-        var controls;
+        var vcontrol;
+
+        var fcontrol;
 
         var moveForward = false;
 
@@ -173,6 +177,8 @@
         var moveRight = false;
 
         var canJump = false;
+
+        var isfloating = false;
 
         var velocity = new THREE.Vector3();
 
@@ -207,9 +213,6 @@
                 this.loading = true;
 
                 // Those Assets
-                this.floatcontrol = null;
-                this.viewcontrol = null;
-
                 this.objectSet = new THREE.Group();
                 // House
                 this.house = null;
@@ -219,6 +222,7 @@
                 this.rabbits = null;
                 this.wolfs = null;
                 this.hedgehogs = null;
+                this.barn = null;
                 // Others
                 this.ballon = null;
                 this.airship = null;
@@ -227,10 +231,6 @@
 
                 // raycaster
                 this.raycaster = null;
-
-                // flag
-                this.isfloating = null;
-
 
                 // more
                 this.prevTime = performance.now();
@@ -242,11 +242,11 @@
                 this.vertex = new THREE.Vector3();
 
                 this.viewAABB = null;
+                this.barnAABB = null;
             }
 
             Outer.prototype.initGL = function () {
-                this.isfloating = false;
-
+           
                 this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
 
                 this.renderer = new THREE.WebGLRenderer({
@@ -272,52 +272,50 @@
 
                 this.floatcamera = new THREE.PerspectiveCamera(this.floatcameraDefaults.fov, this.aspectRatio, this.floatcameraDefaults.near, this.floatcameraDefaults.far);
 
-                this.floatcontrol = new THREE.TrackballControls(this.floatcamera, this.renderer.domElement);
+                fcontrol = new THREE.TrackballControls(this.floatcamera, this.renderer.domElement);
 
                 this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.2, 1000);
-                this.viewcontrol = new THREE.PointerLockControls(this.viewcamera);
-
-                controls = this.viewcontrol;
+                vcontrol = new THREE.PointerLockControls(this.viewcamera);
 
                 var blocker = document.getElementById('blocker');
                 var instructions = document.getElementById('instructions');
 
                 instructions.addEventListener('click', function () {
 
-                    controls.lock();
+                    vcontrol.lock();
                     // console.log("What's wrong here");
 
                 }, false);
 
-                controls.addEventListener('lock', function () {
+                vcontrol.addEventListener('lock', function () {
 
                     instructions.style.display = 'none';
                     blocker.style.display = 'none';
 
                 });
 
-                controls.addEventListener('unlock', function () {
+                vcontrol.addEventListener('unlock', function () {
 
                     blocker.style.display = 'block';
                     instructions.style.display = '';
 
                 });
 
-                this.viewcontrol.getObject().position.x = 150;
-                //this.viewcontrol.getObject().position.y = 0;
-                this.viewcontrol.getObject().position.z = 200;
+                vcontrol.getObject().position.x = 130;
+                //vcontrol.getObject().position.y = 0;
+                vcontrol.getObject().position.z = 240;
                 
                 this.viewAABB = new myAABB(
                                     calculateMyAABB( 
-                                        [this.viewcontrol.getObject().rotation.x, this.viewcontrol.getObject().rotation.y, this.viewcontrol.getObject().rotation.z], 
-                                        [this.viewcontrol.getObject().position.x, this.viewcontrol.getObject().position.y, this.viewcontrol.getObject().position.z], 
-                                        viewPara[0]*this.viewcontrol.getObject().scale.x, 
-                                        viewPara[1]*this.viewcontrol.getObject().scale.y, 
-                                        viewPara[2]*this.viewcontrol.getObject().scale.z
+                                        [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
+                                        [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
+                                        viewPara[0]*vcontrol.getObject().scale.x, 
+                                        viewPara[1]*vcontrol.getObject().scale.y, 
+                                        viewPara[2]*vcontrol.getObject().scale.z
                                     )
                                 );
                 
-                this.scene.add(controls.getObject());
+                this.scene.add(vcontrol.getObject());
 
                 // handle !
 
@@ -392,13 +390,14 @@
                 var onLoadMtl = function (materials, materialCreator) {
                     var objLoader = new THREE.OBJLoader();
                     objLoader.setMaterials(materialCreator);
-                    objLoader.load('./models/floating_islands.obj', function (object) {
+                    objLoader.load('./models/low-poly-islands.obj', function (object) {
                         // Here append anythins
 
                         // The house
                         scope.house = new House();
-                        scope.house._mesh.position.set(150, 99, 200);
+                        scope.house._mesh.position.set(130, 99, 200);
                         scope.house._mesh.scale.set(0.2, 0.2, 0.2);
+                        // scope.house._mesh.rotation.y = -Math.PI/180*20;
                         object.add(scope.house._mesh);
 
                         // The Trees
@@ -427,42 +426,39 @@
                         // The airship
                         scope.airship = object.children[7];
 
+                        // The barn
+                        scope.barn = object.children[11];
+                        scope.barnAABB = new myAABB(
+                                                calculateMyAABB( 
+                                                    [0, 0, 0], 
+                                                    [196, 103, 148], 
+                                                    15,20,22
+                                                    )
+                                                );
+
+                        console.log(scope.barnAABB);
+
                         scope.lake = new Lake();
                         object.add(scope.lake.mesh);
 
                         scope.objectSet.add(object);
+
                         scope.loading = false;
 
-                        console.log("Cow AABB");
-                        console.log(scope.cows.cows[0].AABB.min_x);
-                        console.log(scope.cows.cows[0].AABB.max_x);
-                        console.log(scope.cows.cows[0].AABB.min_y);
-                        console.log(scope.cows.cows[0].AABB.max_y);
-                        console.log(scope.cows.cows[0].AABB.min_z);
-                        console.log(scope.cows.cows[0].AABB.max_z);
+                        scope.rabbits.rabbits[0].trigger("nod", null);
 
-                        console.log("One Tree AABB");
-                        console.log(scope.forest.trees[0].AABB.min_x);
-                        console.log(scope.forest.trees[0].AABB.max_x);
-                        console.log(scope.forest.trees[0].AABB.min_y);
-                        console.log(scope.forest.trees[0].AABB.max_y);
-                        console.log(scope.forest.trees[0].AABB.min_z);
-                        console.log(scope.forest.trees[0].AABB.max_z);
+                        scope.wolfs.wolfs[0].trigger("nod", null);
 
-                        scope.cows.cows[0].AABB.detect(
-                            scope.forest.trees[0].AABB
-                        )
-
-                        scope.cows.cows[0].trigger("forward", 20);
-
-                        scope.rabbits.rabbits[0].trigger("forward", 20);
-
-                        scope.wolfs.wolfs[0].trigger("forward", 20);
+                        scope.hedgehogs.hedgehogs[0].nod();
+                        
+                        for (var i = 0; i < scope.cows.cows.length; i++) {
+                            scope.cows.cows[i].trigger("nod", null);
+                        }
 
                         scope.ballonUp();
                     });
                 };
-                objLoader2.loadMtl('./models/floating_islands.mtl', null, onLoadMtl);
+                objLoader2.loadMtl('./models/low-poly-islands.mtl', null, onLoadMtl);
 
                 this.scene.add(this.objectSet);
                 this.loadSkyBox();
@@ -481,8 +477,8 @@
             };
 
             Outer.prototype.resizeDisplayGL = function () {
-                if (this.isfloating)
-                    this.floatcontrol.handleResize();
+                if (isfloating)
+                    fcontrol.handleResize();
                 else {
                     this.viewcamera.aspect = window.innerWidth / window.innerHeight;
                     this.viewcamera.updateProjectionMatrix();
@@ -490,7 +486,7 @@
                 // this.recalcAspectRatio();
                 // this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
 
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setSize(window.innerWidth, window.innerHeight, false);
                 this.updateCamera();
             };
 
@@ -499,7 +495,7 @@
             };
 
             Outer.prototype.resetCamera = function () {
-                if (this.isfloating) {
+                if (isfloating) {
                     this.floatcamera.position.copy(this.floatcameraDefaults.posCamera);
                     this.floatcameraTarget.copy(this.floatcameraDefaults.posCameraTarget);
                 }
@@ -508,18 +504,18 @@
             };
 
             Outer.prototype.updateCamera = function () {
-                if (this.isfloating) {
+                if (isfloating) {
                     this.floatcamera.aspect = this.aspectRatio;
                     this.floatcamera.lookAt(this.floatcameraTarget);
                     this.floatcamera.updateProjectionMatrix();
                 }
                 else {
-                    if (controls.isLocked === true) {
+                    if (vcontrol.isLocked === true) {
                         // console.log("First Mark: ");
-                        // console.log(controls.getObject().position);
+                        // console.log(vcontrol.getObject().position);
                         // console.log("Yep I am in");
 
-                        this.raycaster.ray.origin.copy(this.viewcontrol.getObject().position);
+                        this.raycaster.ray.origin.copy(vcontrol.getObject().position);
                         this.raycaster.ray.origin.y += 6;
 
                         var intersections = this.raycaster.intersectObjects(this.scene.children, true);
@@ -553,6 +549,9 @@
 
                         if (moveForward || moveBackward) velocity.z -= this.direction.z * 100.0 * delta;
                         if (moveLeft || moveRight) velocity.x -= this.direction.x * 100.0 * delta;
+                        // if (moveForward || moveBackward) velocity.z -= this.direction.z * 300.0 * delta;
+                        // if (moveLeft || moveRight) velocity.x -= this.direction.x * 300.0 * delta;
+
                         // console.log(this.direction);
                         // console.log(velocity);
 
@@ -562,25 +561,23 @@
                             canJump = true;
                         }
 
-                        
-                        
                         //else{
-                        this.viewcontrol.getObject().translateX(velocity.x * delta);
-                        this.viewcontrol.getObject().translateY(velocity.y * delta);
-                        this.viewcontrol.getObject().translateZ(velocity.z * delta);
+                        vcontrol.getObject().translateX(velocity.x * delta);
+                        vcontrol.getObject().translateY(velocity.y * delta);
+                        vcontrol.getObject().translateZ(velocity.z * delta);
                         //}
 
 
                         // console.log("Angle Mark: ");
-                        // console.log(controls.getObject().rotation);
+                        // console.log(vcontrol.getObject().rotation);
 
                         this.viewAABB.update(
                                             calculateMyAABB( 
-                                                [this.viewcontrol.getObject().rotation.x, this.viewcontrol.getObject().rotation.y, this.viewcontrol.getObject().rotation.z], 
-                                                [this.viewcontrol.getObject().position.x, this.viewcontrol.getObject().position.y, this.viewcontrol.getObject().position.z], 
-                                                viewPara[0]*this.viewcontrol.getObject().scale.x, 
-                                                viewPara[1]*this.viewcontrol.getObject().scale.y, 
-                                                viewPara[2]*this.viewcontrol.getObject().scale.z
+                                                [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
+                                                [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
+                                                viewPara[0]*vcontrol.getObject().scale.x, 
+                                                viewPara[1]*vcontrol.getObject().scale.y, 
+                                                viewPara[2]*vcontrol.getObject().scale.z
                                             )
                                         );
 
@@ -589,16 +586,20 @@
                         this.collideDetect();
                         var ifCollide = this.viewAABB.iscollision;
                         if (ifCollide) {
-                            this.viewcontrol.getObject().translateX(-velocity.x * delta);
-                            this.viewcontrol.getObject().translateY(-velocity.y * delta);
-                            this.viewcontrol.getObject().translateZ(-velocity.z * delta);
+                            vcontrol.getObject().translateX(-velocity.x * delta);
+                            vcontrol.getObject().translateY(-velocity.y * delta);
+                            vcontrol.getObject().translateZ(-velocity.z * delta);
                             this.viewAABB.collisionOver();
+                            if (moveForward || moveBackward) velocity.z += this.direction.z * 100.0 * delta;
+                            if (moveLeft || moveRight) velocity.x += this.direction.x * 100.0 * delta;
+                            // if (moveForward || moveBackward) velocity.z += this.direction.z * 300.0 * delta;
+                            // if (moveLeft || moveRight) velocity.x += this.direction.x * 300.0 * delta;
                         }
 
-                        if (this.viewcontrol.getObject().position.y < 60) {
+                        if (vcontrol.getObject().position.y < 60) {
                             // console.log("Yep I am in");
                             velocity.y = 0;
-                            this.viewcontrol.getObject().position.y = 100;
+                            vcontrol.getObject().position.y = 150;
                             canJump = true;
 
                         }
@@ -609,12 +610,11 @@
 
             Outer.prototype.render = function () {
                 if (!this.renderer.autoClear) this.renderer.clear();
-                if (this.isfloating) {
-                    this.floatcontrol.update();
+                if (isfloating) {
+                    fcontrol.update();
                     this.renderer.render(this.scene, this.floatcamera);
                 }
                 else {
-                    //this.viewcontrol.update();
                     this.renderer.render(this.scene, this.viewcamera);
                     this.updateCamera();
                 }
@@ -677,12 +677,17 @@
                         break;
 
                     case 32: // space
-                        console.log("Jump test");
+                        // console.log("Jump test");
                         if (canJump == true)
                             velocity.y += 30;
                         canJump = false;
                         break;
 
+                    case 84:
+                    case 116:
+                        isfloating = !isfloating;
+                        console.log(isfloating);
+                        break;
                 }
 
             };
@@ -721,6 +726,17 @@
                 for (var i = 0; i < this.forest.trees.length; i++) {
                     obj_camera.detect(this.forest.trees[i].AABB);
                 }
+
+                for (var i = 0; i < this.cows.cows.length; i++){
+                    obj_camera.detect(this.cows.cows[i].AABB);
+                }
+                for (var i = 0; i < this.wolfs.wolfs.length; i++){
+                    obj_camera.detect(this.wolfs.wolfs[i].AABB);
+                }
+                for (var i = 0; i < this.rabbits.rabbits.length; i++){
+                    obj_camera.detect(this.rabbits.rabbits[i].AABB);
+                }
+                obj_camera.detect(this.barnAABB);
                 // if (obj_camera.iscollision) {
                 //     console.log("Oops");
                 //     obj_camera.collisionOver();
@@ -766,8 +782,10 @@
             render();
         }
 
+        
         window.addEventListener('resize', resizeWindow, false);
         window.addEventListener('load', init, false);
+
 
     </script>
 </body>
