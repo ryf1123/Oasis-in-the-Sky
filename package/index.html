@@ -166,8 +166,6 @@
 
         var vcontrol;
 
-        var fcontrol;
-
         var moveForward = false;
 
         var moveBackward = false;
@@ -178,7 +176,7 @@
 
         var canJump = false;
 
-        var isfloating = false;
+        var running = false;
 
         var velocity = new THREE.Vector3();
 
@@ -196,16 +194,6 @@
                 // this.recalcAspectRatio();
 
                 this.scene = null;
-
-                this.floatcameraDefaults = {
-                    posCamera: new THREE.Vector3(0.0, 175.0, 500.0),
-                    posCameraTarget: new THREE.Vector3(0, 0, 0),
-                    near: 0.1,
-                    far: 10000,
-                    fov: 45
-                };
-                this.floatcamera = null;
-                this.floatcameraTarget = this.floatcameraDefaults.posCameraTarget;
 
                 this.viewcamera = null;
 
@@ -235,9 +223,6 @@
                 // more
                 this.prevTime = performance.now();
 
-                // velocity.x = 0;
-                // velocity.y = 0;
-                // velocity.z = 0;
                 this.direction = new THREE.Vector3();
                 this.vertex = new THREE.Vector3();
 
@@ -269,12 +254,7 @@
                 light.position.set(0.5, 1, 0.75);
                 this.scene.add(light);
 
-
-                this.floatcamera = new THREE.PerspectiveCamera(this.floatcameraDefaults.fov, this.aspectRatio, this.floatcameraDefaults.near, this.floatcameraDefaults.far);
-
-                fcontrol = new THREE.TrackballControls(this.floatcamera, this.renderer.domElement);
-
-                this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.2, 1000);
+                this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
                 vcontrol = new THREE.PointerLockControls(this.viewcamera);
 
                 var blocker = document.getElementById('blocker');
@@ -462,30 +442,13 @@
 
                 this.scene.add(this.objectSet);
                 this.loadSkyBox();
-                // this.scene.fog = new THREE.FogExp2(0xffffff,0.001);
-                // this.sky = new THREE.Sky();
-                // this.sky.scale.setScalar( 1000000 );
-                // this.scene.add( this.sky );
-
-                // var uniforms = this.sky.material.uniforms;
-                // uniforms.turbidity.value = 10;
-                // uniforms.rayleigh.value = 2;
-                // uniforms.luminance.value = 1;
-                // uniforms.mieCoefficient.value = 0.005;
-                // uniforms.mieDirectionalG.value = 0.8;
-
             };
 
             Outer.prototype.resizeDisplayGL = function () {
-                if (isfloating)
-                    fcontrol.handleResize();
-                else {
-                    this.viewcamera.aspect = window.innerWidth / window.innerHeight;
-                    this.viewcamera.updateProjectionMatrix();
-                }
-                // this.recalcAspectRatio();
-                // this.renderer.setSize( this.canvas.offsetWidth, this.canvas.offsetHeight, false );
 
+                this.viewcamera.aspect = window.innerWidth / window.innerHeight;
+                this.viewcamera.updateProjectionMatrix();
+                
                 this.renderer.setSize(window.innerWidth, window.innerHeight, false);
                 this.updateCamera();
             };
@@ -495,129 +458,77 @@
             };
 
             Outer.prototype.resetCamera = function () {
-                if (isfloating) {
-                    this.floatcamera.position.copy(this.floatcameraDefaults.posCamera);
-                    this.floatcameraTarget.copy(this.floatcameraDefaults.posCameraTarget);
-                }
-
                 this.updateCamera();
             };
 
             Outer.prototype.updateCamera = function () {
-                if (isfloating) {
-                    this.floatcamera.aspect = this.aspectRatio;
-                    this.floatcamera.lookAt(this.floatcameraTarget);
-                    this.floatcamera.updateProjectionMatrix();
-                }
-                else {
-                    if (vcontrol.isLocked === true) {
-                        // console.log("First Mark: ");
-                        // console.log(vcontrol.getObject().position);
-                        // console.log("Yep I am in");
+                if (vcontrol.isLocked === true) {
+                    this.raycaster.ray.origin.copy(vcontrol.getObject().position);
+                    this.raycaster.ray.origin.y += 3;
+                    var intersections = this.raycaster.intersectObjects(this.scene.children, true);
+                    var onObject = intersections.length > 0;
+                    // console.log("The intersections:" + intersections.length)
+                    var time = performance.now();
+                    var delta = (time - this.prevTime) / 1000;
 
-                        this.raycaster.ray.origin.copy(vcontrol.getObject().position);
-                        this.raycaster.ray.origin.y += 6;
+                    velocity.x -= velocity.x * 10.0 * delta;
+                    velocity.z -= velocity.z * 10.0 * delta;
+                    velocity.y -= 9.8 * 10.0 * delta;
+                    this.direction.z = Number(moveForward) - Number(moveBackward);
+                    this.direction.x = Number(moveLeft) - Number(moveRight);
+                    this.direction.normalize(); // this ensures consistent movements in all directions
 
-                        var intersections = this.raycaster.intersectObjects(this.scene.children, true);
-                        var onObject = intersections.length > 0;
+                    var speed = (running) ? 200:100;
 
-                        // console.log("The intersections:" + intersections.length)
-                        var time = performance.now();
-                        var delta = (time - this.prevTime) / 1000;
-
-                        // console.log("Time and delta flag");
-                        // console.log(time);
-                        // console.log(delta);
-                        // console.log(this.prevTime);
-
-                        velocity.x -= velocity.x * 10.0 * delta;
-                        velocity.z -= velocity.z * 10.0 * delta;
-                        velocity.y -= 9.8 * 10.0 * delta;
-
-                        // console.log("Forward state:");
-                        // console.log(moveForward);
-
-                        this.direction.z = Number(moveForward) - Number(moveBackward);
-                        this.direction.x = Number(moveLeft) - Number(moveRight);
-                        this.direction.normalize(); // this ensures consistent movements in all directions
-
-                        // console.log("Velocity Mark: ");
-                        // console.log(velocity);
-
-                        // console.log("Direcition Mark: ");
-                        // console.log(this.direction);
-
-                        if (moveForward || moveBackward) velocity.z -= this.direction.z * 100.0 * delta;
-                        if (moveLeft || moveRight) velocity.x -= this.direction.x * 100.0 * delta;
-                        // if (moveForward || moveBackward) velocity.z -= this.direction.z * 300.0 * delta;
-                        // if (moveLeft || moveRight) velocity.x -= this.direction.x * 300.0 * delta;
-
-                        // console.log(this.direction);
-                        // console.log(velocity);
-
-                        // console.log(onObject);
-                        if (onObject == true) {
+                    if (moveForward || moveBackward) velocity.z -= this.direction.z * speed * delta;
+                    if (moveLeft || moveRight) velocity.x -= this.direction.x * speed * delta;
+ 
+                    if (onObject == true) {
                             velocity.y = Math.max(0, velocity.y);
                             canJump = true;
-                        }
+                    }
 
-                        //else{
-                        vcontrol.getObject().translateX(velocity.x * delta);
-                        vcontrol.getObject().translateY(velocity.y * delta);
-                        vcontrol.getObject().translateZ(velocity.z * delta);
-                        //}
+                    vcontrol.getObject().translateX(velocity.x * delta);
+                    vcontrol.getObject().translateY(velocity.y * delta);
+                    vcontrol.getObject().translateZ(velocity.z * delta);
 
 
-                        // console.log("Angle Mark: ");
-                        // console.log(vcontrol.getObject().rotation);
+                    this.viewAABB.update(
+                                calculateMyAABB( 
+                                    [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
+                                    [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
+                                    viewPara[0]*vcontrol.getObject().scale.x, 
+                                    viewPara[1]*vcontrol.getObject().scale.y, 
+                                    viewPara[2]*vcontrol.getObject().scale.z
+                                    )
+                                );
 
-                        this.viewAABB.update(
-                                            calculateMyAABB( 
-                                                [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
-                                                [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
-                                                viewPara[0]*vcontrol.getObject().scale.x, 
-                                                viewPara[1]*vcontrol.getObject().scale.y, 
-                                                viewPara[2]*vcontrol.getObject().scale.z
-                                            )
-                                        );
+                    this.collideDetect();
+                    var ifCollide = this.viewAABB.iscollision;
+                    if (ifCollide) {
+                        vcontrol.getObject().translateX(-velocity.x * delta);
+                        vcontrol.getObject().translateY(-velocity.y * delta);
+                        vcontrol.getObject().translateZ(-velocity.z * delta);
+                        this.viewAABB.collisionOver();
+                        if (moveForward || moveBackward) velocity.z += this.direction.z * speed * delta;
+                        if (moveLeft || moveRight) velocity.x += this.direction.x * speed * delta;
+                    }
 
-                        // console.log("Caerma AABB:");
-                        // console.log(this.viewAABB);
-                        this.collideDetect();
-                        var ifCollide = this.viewAABB.iscollision;
-                        if (ifCollide) {
-                            vcontrol.getObject().translateX(-velocity.x * delta);
-                            vcontrol.getObject().translateY(-velocity.y * delta);
-                            vcontrol.getObject().translateZ(-velocity.z * delta);
-                            this.viewAABB.collisionOver();
-                            if (moveForward || moveBackward) velocity.z += this.direction.z * 100.0 * delta;
-                            if (moveLeft || moveRight) velocity.x += this.direction.x * 100.0 * delta;
-                            // if (moveForward || moveBackward) velocity.z += this.direction.z * 300.0 * delta;
-                            // if (moveLeft || moveRight) velocity.x += this.direction.x * 300.0 * delta;
-                        }
-
-                        if (vcontrol.getObject().position.y < 60) {
-                            // console.log("Yep I am in");
+                    if (vcontrol.getObject().position.y < 60) {
                             velocity.y = 0;
                             vcontrol.getObject().position.y = 150;
                             canJump = true;
 
-                        }
-                        this.prevTime = time;
                     }
+                    this.prevTime = time;
                 }
+                
             };
 
             Outer.prototype.render = function () {
                 if (!this.renderer.autoClear) this.renderer.clear();
-                if (isfloating) {
-                    fcontrol.update();
-                    this.renderer.render(this.scene, this.floatcamera);
-                }
-                else {
-                    this.renderer.render(this.scene, this.viewcamera);
-                    this.updateCamera();
-                }
+                this.renderer.render(this.scene, this.viewcamera);
+                this.updateCamera();
             };
 
             Outer.prototype.loadSkyBox = function () {
@@ -683,11 +594,10 @@
                         canJump = false;
                         break;
 
-                    case 84:
-                    case 116:
-                        isfloating = !isfloating;
-                        console.log(isfloating);
+                    case 16:
+                        running = true;
                         break;
+
                 }
 
             };
@@ -714,6 +624,10 @@
                     case 39: // right
                     case 68: // d
                         moveRight = false;
+                        break;
+
+                    case 16:
+                        running = false;
                         break;
 
                 }

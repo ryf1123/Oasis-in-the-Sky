@@ -108,3 +108,27 @@ In addition, those trees are combined with AABB collision detection, which means
 Some problems occur that fps is decreasing with many objects rendered.
 
 Late work will be discussed soon.
+
+
+
+### Perhaps the last meeting (time-01-05 old place, old people)
+
+Next Saturday will be the due, and there remains many work to do and all guys have to hang on!
+
+The work are partitioned like below:
+
+1. For HJH and RYF:
+   The AABB for house and furniture, some other intersections including opening the door with coordinate detection, TV watching and light turning.
+2. For LTX:
+   Game logic and intersection, finding treasure, moving boat and moving airplane included.
+3. For XJY and ML:
+   Reaction of tree and animals after being hit
+   Day and night transfer & light changing
+   Snow / Rain effect
+
+Some other attention
+
+- Screen shot
+- We give up the god view
+- Preparing for presentation show
+
