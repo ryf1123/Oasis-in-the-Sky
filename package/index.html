@@ -213,6 +213,7 @@
                 this.barn = null;
                 // Others
                 this.ballon = null;
+                this.woodenboat = null;
                 this.airship = null;
                 this.lake = null;
                 this.timeDay = 0;
@@ -250,9 +251,9 @@
 
                 // this.scene.background = new THREE.Color( 0xffffff );
 
-                var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
-                light.position.set(0.5, 1, 0.75);
-                this.scene.add(light);
+                // var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+                // light.position.set(0.5, 1, 0.75);
+                // this.scene.add(light);
 
                 this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
                 vcontrol = new THREE.PointerLockControls(this.viewcamera);
@@ -348,6 +349,7 @@
                 addLight(0.995, 0.5, 0.9, -5000, 1000, -1000);
                 function addLight(h, s, l, x, y, z) {
                     var light = new THREE.PointLight(0xffffff, 1.5, 2000);
+                    light.castShadow = true;
                     light.color.setHSL(h, s, l);
                     light.position.set(x, y, z);
                     _ss.add(light);
@@ -405,6 +407,10 @@
 
                         // The airship
                         scope.airship = object.children[7];
+
+                        // The boat
+                        scope.woodenboat = object.children[16];
+                        scope.woodenboat.position.y -= 4.4;
 
                         // The barn
                         scope.barn = object.children[11];
@@ -464,7 +470,7 @@
             Outer.prototype.updateCamera = function () {
                 if (vcontrol.isLocked === true) {
                     this.raycaster.ray.origin.copy(vcontrol.getObject().position);
-                    this.raycaster.ray.origin.y += 3;
+                    this.raycaster.ray.origin.y += 4;
                     var intersections = this.raycaster.intersectObjects(this.scene.children, true);
                     var onObject = intersections.length > 0;
                     // console.log("The intersections:" + intersections.length)
