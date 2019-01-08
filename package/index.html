@@ -143,6 +143,7 @@
     <script src="js/Sky.js"></script>
     <script src="js/Lensflare.js"></script>
     <script src="js/House.js"></script>
+    <script src="js/myAnti_Jitter.js"></script>
     <!-- <script src="js/dat.gui.min.js"></script> -->
     <video id="video" autoplay vcontrol>
         <source src="video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
@@ -338,15 +339,16 @@
                 var dirLight = new THREE.DirectionalLight(0xffffff, 0.05);
                 dirLight.position.set(5000, 1000, -1000).normalize();
                 dirLight.color.setHSL(0.1, 0.7, 0.5);
+                dirLight.castShadow = true;
                 var _ss = this.scene;
                 _ss.add(dirLight);
                 // lensflares
                 var textureLoader = new THREE.TextureLoader();
                 var textureFlare0 = textureLoader.load('assets/lensflare/lensflare0.png');
                 var textureFlare3 = textureLoader.load('assets/lensflare/lensflare3.png');
-                addLight(0.55, 0.9, 0.5, -5000, 1000, -1000);
-                addLight(0.08, 0.8, 0.5, -5000, 1000, -1000);
-                addLight(0.995, 0.5, 0.9, -5000, 1000, -1000);
+                //addLight(0.55, 0.9, 0.5, 5000, 1000, -1000);
+                //addLight(0.08, 0.8, 0.5, 5000, 1000, -1000);
+                //addLight(0.995, 0.5, 0.9, 5000, 1000, -1000);
                 function addLight(h, s, l, x, y, z) {
                     var light = new THREE.PointLight(0xffffff, 1.5, 2000);
                     light.castShadow = true;
@@ -374,6 +376,8 @@
                     objLoader.setMaterials(materialCreator);
                     objLoader.load('./models/low-poly-islands.obj', function (object) {
                         // Here append anythins
+                        // The environment need to receive the shadow ?
+                        //object.children[21].receiveShadow = true;
 
                         // The house
                         scope.house = new House();
@@ -431,17 +435,21 @@
 
                         scope.loading = false;
 
-                        scope.rabbits.rabbits[0].trigger("nod", null);
+                        // scope.rabbits.rabbits[0].trigger("nod", null);
 
-                        scope.wolfs.wolfs[0].trigger("nod", null);
+                        // scope.wolfs.wolfs[0].trigger("nod", null);
 
-                        scope.hedgehogs.hedgehogs[0].nod();
+                        // scope.hedgehogs.hedgehogs[0].nod();
                         
-                        for (var i = 0; i < scope.cows.cows.length; i++) {
-                            scope.cows.cows[i].trigger("nod", null);
-                        }
+                        // for (var i = 0; i < scope.cows.cows.length; i++) {
+                        //     scope.cows.cows[i].trigger("nod", null);
+                        // }
 
                         scope.ballonUp();
+
+                        // Try debugging
+                        console.log(object.children[21]);
+                        
                     });
                 };
                 objLoader2.loadMtl('./models/low-poly-islands.mtl', null, onLoadMtl);
@@ -457,11 +465,13 @@
                 
                 this.renderer.setSize(window.innerWidth, window.innerHeight, false);
                 this.updateCamera();
+
             };
 
-            Outer.prototype.recalcAspectRatio = function () {
-                this.aspectRatio = (this.canvas.offsetHeight === 0) ? 1 : this.canvas.offsetWidth / this.canvas.offsetHeight;
-            };
+            // Outer.prototype.recalcAspectRatio = function () {
+
+            //     this.aspectRatio = (this.canvas.offsetHeight === 0) ? 1 : this.canvas.offsetWidth / this.canvas.offsetHeight;
+            // };
 
             Outer.prototype.resetCamera = function () {
                 this.updateCamera();
@@ -470,7 +480,7 @@
             Outer.prototype.updateCamera = function () {
                 if (vcontrol.isLocked === true) {
                     this.raycaster.ray.origin.copy(vcontrol.getObject().position);
-                    this.raycaster.ray.origin.y += 4;
+                    this.raycaster.ray.origin.y += 6;
                     var intersections = this.raycaster.intersectObjects(this.scene.children, true);
                     var onObject = intersections.length > 0;
                     // console.log("The intersections:" + intersections.length)
@@ -645,15 +655,24 @@
                 // With trees
                 for (var i = 0; i < this.forest.trees.length; i++) {
                     obj_camera.detect(this.forest.trees[i].AABB);
+                    if(obj_camera.iscollision){
+                        this.forest.trees[i].AABB.iscollision = true;
+                        break;
+                    }
                 }
 
                 for (var i = 0; i < this.cows.cows.length; i++){
                     obj_camera.detect(this.cows.cows[i].AABB);
+                    if(obj_camera.iscollision){
+                        this.cows.cows[i].AABB.iscollision = true;
+                        break;
+                    }
                 }
                 for (var i = 0; i < this.wolfs.wolfs.length; i++){
                     obj_camera.detect(this.wolfs.wolfs[i].AABB);
                 }
                 for (var i = 0; i < this.rabbits.rabbits.length; i++){
+                    // console.log(this.rabbits.rabbits[i].AABB);
                     obj_camera.detect(this.rabbits.rabbits[i].AABB);
                 }
                 obj_camera.detect(this.barnAABB);
@@ -661,6 +680,64 @@
                 //     console.log("Oops");
                 //     obj_camera.collisionOver();
                 // }
+            }
+
+            Outer.prototype.cowsControl = function() {
+                // 首先是牛牛的碰撞检测
+                // 注意晚上睡觉的接口
+                for (var i = 0; i < this.cows.cows.length; i++){
+                    // Shall I leave a cow for TTX ?
+                    var cattle = this.cows.cows[i];
+                    // Camera has done
+                    // With trees
+                    for (var j = 0; (j < this.forest.trees.length && cattle.AABB.iscollision == false); j++) {
+                        cattle.AABB.detect(this.forest.trees[j].AABB);
+                    }
+                    // With wolfs
+                    for (var j = 0; (j < this.wolfs.wolfs.length && cattle.AABB.iscollision == false); j++) {
+                        cattle.AABB.detect(this.wolfs.wolfs[j].AABB);
+                    }
+                    // With rabbits
+                    for (var j = 0; (j < this.rabbits.rabbits.length && cattle.AABB.iscollision == false); j++) {
+                        cattle.AABB.detect(this.rabbits.rabbits[j].AABB);
+                    }
+
+
+
+                    // Done then
+                    if( cattle.AABB.iscollision ){
+                        // Moving all states now
+                        cattle.interrupt();
+                        //if(cattle.status != "jumping")
+                        //    cattle.trigger("jump", null);
+                        cattle.trigger("nod", null);
+                        console.log("Cow Number: ", i, "Oops");
+                        cattle.AABB.collisionOver();
+                        // console.log("The position of mesh: ", )
+                    }
+
+                    // // Can do something then
+                    else if (cattle.buffer.count() && cattle.status != "jumping") {
+                        // Delete all moving states now
+                        cattle.interrupt();
+                        var choice = Math.random();
+                        console.log("The choice", choice);
+                        if(choice > 3.0/4){
+                            cattle.trigger("nod", null);
+                        }else if(choice > 2.0/4){
+                            cattle.trigger("jump", null);
+                        }else if(choice > 1.0/4){
+                            var time = 10 * Math.random();
+                            cattle.trigger("forward", time);
+                        }else{
+                            var degree = 180 * (Math.random() * 2 - 1);
+                            cattle.trigger("rotate", degree);
+                        }
+                    }
+
+                }
+                this.cows.loop();
+
             }
 
             return Outer;
@@ -682,10 +759,12 @@
             //console.log(app.forest.trees[0].mesh.position.x);
             if(!app.loading){
                 //app.forest.trees[0].mesh.rotation.y += 0.01;
-                app.cows.loop();
+                //app.cows.loop();
+                app.cowsControl();
                 app.rabbits.loop();
                 app.wolfs.loop();
                 app.lake.animate();
+                app.forest.collideDetect();
             }
                 
         };

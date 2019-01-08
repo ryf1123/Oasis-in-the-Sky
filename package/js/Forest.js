@@ -16,6 +16,8 @@ var Forest = function(){
 	        shading:THREE.FlatShading,
 	});
 
+	var defaultFalling = 3;
+
 	// Trees
 	Tree1 = function(){
 	  this.mesh = new THREE.Group();
@@ -47,8 +49,24 @@ var Forest = function(){
 	  this.leaf.castShadow = true;
 	  this.mesh.add(this.leaf);
 
-	  this.AABB = null;
 
+
+	  Tree1.prototype.fall = function(){
+	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	tempLeaf.position.y = this.leaf.position.y;
+	  	tempLeaf.position.x = this.leaf.position.x + 20 * (Math.random() - 0.5);// * this.mesh.scale.x;
+	  	tempLeaf.position.z = this.leaf.position.z + 20 * (Math.random() - 0.5);// * this.mesh.scale.z;
+	  	// x and z need randomly allocate
+	  	this.mesh.add(tempLeaf);
+	  	var fallingTime = defaultFalling + (Math.random()-0.5) * 2;
+	  	var rootheight = this.trunk.position.y - this.objWidth; // * this.mesh.scale.y;
+	  	// console.log("Debugging below");
+	  	// console.log("Leaf position: ", this.leaf.position.y);
+	  	// console.log("Trunk origin height: ", this.objWidth);
+	  	// console.log("Trunk current height: ", this.objWidth * this.mesh.scale.y);
+	  	TweenMax.to(tempLeaf.position, fallingTime, {y: rootheight, ease:Power1.easeInOut, onComplete:function(){tempLeaf.visible = false;}})
+	  }
 	}
 
 	Tree2 = function(){
@@ -80,6 +98,23 @@ var Forest = function(){
 	  this.leaf.position.y = 25;
 	  this.leaf.castShadow = true;
 	  this.mesh.add(this.leaf);
+
+	  Tree2.prototype.fall = function(){
+	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	tempLeaf.position.y = this.leaf.position.y;
+	  	tempLeaf.position.x = this.leaf.position.x + 20 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  	tempLeaf.position.z = this.leaf.position.z + 20 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	// x and z need randomly allocate
+	  	this.mesh.add(tempLeaf);
+	  	var fallingTime = defaultFalling + (Math.random()-0.5) * 2;
+	  	var rootheight = this.trunk.position.y - this.objWidth; // * this.mesh.scale.y;
+	  	// console.log("Debugging below");
+	  	// console.log("Leaf position: ", this.leaf.position.y);
+	  	// console.log("Trunk origin height: ", this.objWidth);
+	  	// console.log("Trunk current height: ", this.objWidth * this.mesh.scale.y);
+	  	TweenMax.to(tempLeaf.position, fallingTime, {y: rootheight, ease:Power1.easeInOut, onComplete:function(){tempLeaf.visible = false;}})
+	  }
 	}
 
 	Tree3 = function(){
@@ -154,7 +189,34 @@ var Forest = function(){
 	  this.leaf3.position.y += 8;
 	  this.trunk3.add(this.leaf3);
 
-	  this.AABB = null;
+	  Tree3.prototype.fall = function(){
+	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+
+	  	var choice = Math.random();
+	  	if(choice > 2.0/3){
+	  		tempLeaf.position.y = this.leaf1.position.y;
+	  		tempLeaf.position.x = this.leaf1.position.x + 12 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  		tempLeaf.position.z = this.leaf1.position.z + 12 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	}else if(choice > 1.0/3){
+	  		tempLeaf.position.y = this.leaf2.position.y;
+	  		tempLeaf.position.x = this.leaf2.position.x + 6 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  		tempLeaf.position.z = this.leaf2.position.z + 6 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	}else{
+	  		tempLeaf.position.y = this.leaf3.position.y;
+	  		tempLeaf.position.x = this.leaf3.position.x + 6 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  		tempLeaf.position.z = this.leaf3.position.z + 6 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	}
+	  	// x and z need randomly allocate
+	  	this.mesh.add(tempLeaf);
+	  	var fallingTime = defaultFalling + (Math.random()-0.5) * 2;
+	  	var rootheight = this.trunk1.position.y - this.objWidth; // * this.mesh.scale.y;
+	  	// console.log("Debugging below");
+	  	// console.log("Leaf position: ", this.leaf.position.y);
+	  	// console.log("Trunk origin height: ", this.objWidth);
+	  	// console.log("Trunk current height: ", this.objWidth * this.mesh.scale.y);
+	  	TweenMax.to(tempLeaf.position, fallingTime, {y: rootheight, ease:Power1.easeInOut, onComplete:function(){tempLeaf.visible = false;}})
+	  }
 	}
 
 	Tree4 = function(){
@@ -229,7 +291,30 @@ var Forest = function(){
 	  this.leaf3.position.y += 8;
 	  this.trunk3.add(this.leaf3);
 
-	  this.AABB = null;
+	  Tree4.prototype.fall = function(){
+	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+
+	  	var choice = Math.random();
+	  	if(choice > 1.0/2){
+	  		tempLeaf.position.y = this.leaf2.position.y;
+	  		tempLeaf.position.x = this.leaf2.position.x + 12 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  		tempLeaf.position.z = this.leaf2.position.z + 12 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	}else{
+	  		tempLeaf.position.y = this.leaf3.position.y;
+	  		tempLeaf.position.x = this.leaf3.position.x + 10 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  		tempLeaf.position.z = this.leaf3.position.z + 10 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	}
+	  	// x and z need randomly allocate
+	  	this.mesh.add(tempLeaf);
+	  	var fallingTime = defaultFalling + (Math.random()-0.5) * 2;
+	  	var rootheight = this.trunk1.position.y - this.objWidth; // * this.mesh.scale.y;
+	  	// console.log("Debugging below");
+	  	// console.log("Leaf position: ", this.leaf.position.y);
+	  	// console.log("Trunk origin height: ", this.objWidth);
+	  	// console.log("Trunk current height: ", this.objWidth * this.mesh.scale.y);
+	  	TweenMax.to(tempLeaf.position, fallingTime, {y: rootheight, ease:Power1.easeInOut, onComplete:function(){tempLeaf.visible = false;}})
+	  }
 	}
 
 	Tree5 = function(){
@@ -265,7 +350,23 @@ var Forest = function(){
 	  this.leaf3.position.y = 30;
 	  this.mesh.add(this.leaf3);
 
-	  this.AABB = null;
+	  Tree5.prototype.fall = function(){
+	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	tempLeaf.position.y = this.leaf1.position.y;
+	  	tempLeaf.position.x = this.leaf1.position.x + 20 * (Math.random() - 0.5); // * this.mesh.scale.x;
+	  	tempLeaf.position.z = this.leaf1.position.z + 20 * (Math.random() - 0.5); // * this.mesh.scale.z;
+	  	// x and z need randomly allocate
+	  	this.mesh.add(tempLeaf);
+	  	var fallingTime = defaultFalling + (Math.random()-0.5) * 2;
+	  	var rootheight = this.trunk.position.y - this.objWidth; // * this.mesh.scale.y;
+	  	// console.log("Debugging below");
+	  	// console.log("Leaf position: ", this.leaf.position.y);
+	  	// console.log("Trunk origin height: ", this.objWidth);
+	  	// console.log("Trunk current height: ", this.objWidth * this.mesh.scale.y);
+	  	TweenMax.to(tempLeaf.position, fallingTime, {y: rootheight, ease:Power1.easeInOut, onComplete:function(){tempLeaf.visible = false;}})
+	  }
+
 	}
 
 	this.trees = new Array();
@@ -517,22 +618,22 @@ var Forest = function(){
 		[4, [90.4124489813336,125,230.56766202161404], [0.2758704858498081,0.2935129718667277,0.3109580852994389], Math.PI*0.11543671567275937],
 		
 		[0, [35.416445416539716,125,220.49303437004724], [0.2967754652589651,0.30795480749507054,0.2846252281582331], Math.PI*0.7498527438034589],
-[3, [36.27778078835008,125,231.46786508131868], [0.3145644124984368,0.30577416203356855,0.29830295299160264], Math.PI*0.17110802708580297],
-[2, [42.17812099765439,125,236.98398423391652], [0.2819101473511479,0.3049402987307436,0.3041364557405795], Math.PI*0.6001927913357213],
-[2, [46.14547620375577,125,220.70701887634863], [0.29118588035638515,0.30708750796405654,0.2939527862716745], Math.PI*0.6230288801303763],
-[0, [46.75596459059362,125,231.28963457131323], [0.3070365397388552,0.2788173208680318,0.31834391967699294], Math.PI*0.6079533427855679],
-[4, [53.85471863763254,125,225.9319067321441], [0.29095385259116646,0.2859077668252992,0.3080834705990536], Math.PI*0.11571611483522792],
-[0, [52.68119027404327,125,237.4810975596876], [0.3068153835706278,0.2899765391203663,0.2907627244047361], Math.PI*0.022871468071686163],
-[3, [60.194598231606385,125,219.10198859654653], [0.30536970581986506,0.3119229638653184,0.294805479214873], Math.PI*0.39287630040355426],
-[2, [57.55883242356236,125,245.16612805638917], [0.2862197390157615,0.28661346949426847,0.3023638187956927], Math.PI*0.260284278209132],
-[2, [63.93552847038352,125,225.817446725449], [0.3076085606127555,0.31050273000960443,0.2965986764133544], Math.PI*0.8645756392978202],
-[4, [64.92950984009869,125,250.1044293761626], [0.31079933286707373,0.2950966866931661,0.3238567269404028], Math.PI*0.9789048786531713],
-[3, [75.69737986831063,125,224.7744907874173], [0.3038573628184559,0.27933840515917097,0.30352046303502866], Math.PI*0.48194994082143006],
-[3, [83.07409860879899,125,231.40240985406464], [0.3137886994165088,0.29355538928019315,0.28862355740072565], Math.PI*0.32496034580366806],
-[1, [84.06678807853103,125,249.21493805350477], [0.2961114969637623,0.30696605303853686,0.32145422071056096], Math.PI*0.6158659192473167],
-[4, [90.28015997403223,125,239.32388748687504], [0.31303062903731027,0.2766606730664861,0.2782161941941536], Math.PI*0.6284952126370709],
-[1, [95.776950186283,125,231.54939271469027], [0.2867943010535227,0.30292219196904024,0.31835710180591814], Math.PI*0.027412973756004932],
-[2, [101.96449554347994,125,249.63684530111692], [0.2756347998471354,0.3137533151740957,0.3241001426055291], Math.PI*0.7265679467941026],
+		[3, [36.27778078835008,125,231.46786508131868], [0.3145644124984368,0.30577416203356855,0.29830295299160264], Math.PI*0.17110802708580297],
+		[2, [42.17812099765439,125,236.98398423391652], [0.2819101473511479,0.3049402987307436,0.3041364557405795], Math.PI*0.6001927913357213],
+		[2, [46.14547620375577,125,220.70701887634863], [0.29118588035638515,0.30708750796405654,0.2939527862716745], Math.PI*0.6230288801303763],
+		[0, [46.75596459059362,125,231.28963457131323], [0.3070365397388552,0.2788173208680318,0.31834391967699294], Math.PI*0.6079533427855679],
+		[4, [53.85471863763254,125,225.9319067321441], [0.29095385259116646,0.2859077668252992,0.3080834705990536], Math.PI*0.11571611483522792],
+		[0, [52.68119027404327,125,237.4810975596876], [0.3068153835706278,0.2899765391203663,0.2907627244047361], Math.PI*0.022871468071686163],
+		[3, [60.194598231606385,125,219.10198859654653], [0.30536970581986506,0.3119229638653184,0.294805479214873], Math.PI*0.39287630040355426],
+		[2, [57.55883242356236,125,245.16612805638917], [0.2862197390157615,0.28661346949426847,0.3023638187956927], Math.PI*0.260284278209132],
+		[2, [63.93552847038352,125,225.817446725449], [0.3076085606127555,0.31050273000960443,0.2965986764133544], Math.PI*0.8645756392978202],
+		[4, [64.92950984009869,125,250.1044293761626], [0.31079933286707373,0.2950966866931661,0.3238567269404028], Math.PI*0.9789048786531713],
+		[3, [75.69737986831063,125,224.7744907874173], [0.3038573628184559,0.27933840515917097,0.30352046303502866], Math.PI*0.48194994082143006],
+		[3, [83.07409860879899,125,231.40240985406464], [0.3137886994165088,0.29355538928019315,0.28862355740072565], Math.PI*0.32496034580366806],
+		[1, [84.06678807853103,125,249.21493805350477], [0.2961114969637623,0.30696605303853686,0.32145422071056096], Math.PI*0.6158659192473167],
+		[4, [90.28015997403223,125,239.32388748687504], [0.31303062903731027,0.2766606730664861,0.2782161941941536], Math.PI*0.6284952126370709],
+		[1, [95.776950186283,125,231.54939271469027], [0.2867943010535227,0.30292219196904024,0.31835710180591814], Math.PI*0.027412973756004932],
+		[2, [101.96449554347994,125,249.63684530111692], [0.2756347998471354,0.3137533151740957,0.3241001426055291], Math.PI*0.7265679467941026],
 
 		];
 
@@ -554,6 +655,22 @@ var Forest = function(){
     										this.trees[i].objHeight * this.trees[i].mesh.scale.z
     									)
     								);
+    	this.trees[i].AntiJitter = new myAnti_Jitter( 10 );
+    	this.trees[i].AntiJitter.clear();
     	this.mesh.add(this.trees[i].mesh);
+    }
+
+    Forest.prototype.collideDetect = function()
+    {
+    	for (var i = 0; i < this.trees.length; i++) {
+    		if(this.trees[i].AABB.iscollision){
+    			if(this.trees[i].AntiJitter.count()){
+    				console.log("Tree Number: ", i, " real oops");
+    				this.trees[i].fall();
+    				this.trees[i].AntiJitter.clear();
+    				this.trees[i].AABB.collisionOver();
+    			}
+    		}
+    	}
     }
 }

@@ -35,6 +35,7 @@ var Cows = function() {
 		this.rspeed = Math.PI/2;
 		this.movingTime = 0;
 		this.rotatingDegree = 0;
+		this.jumpTime = 0.75;
 
 		this.runningCycle = 0;
 		this.mesh = new THREE.Group();
@@ -300,6 +301,7 @@ var Cows = function() {
 	    });
 
 	    this.AABB = null;
+	    this.buffer = null;
 	}
 
 	Cow.prototype.nod = function(){
@@ -366,13 +368,19 @@ var Cows = function() {
 		var _this = this;
 		side = duration * _this.lspeed;
 		axisPos = [_this.mesh.position.x + side * Math.cos(_this.mesh.rotation.y), _this.mesh.position.y, _this.mesh.position.z - side * Math.sin(_this.mesh.rotation.y)];
-	  	TweenMax.to(this.mesh.position, duration, {x: axisPos[0], y:axisPos[1], z:axisPos[2], ease:Power1.easeInOut, onComplete:function(){_this.trigger("ready"), null}});
+	  	TweenMax.to(this.mesh.position, duration, {x: axisPos[0], y:axisPos[1], z:axisPos[2], ease:Power1.easeInOut, onComplete:function(){_this.trigger("ready", null)}});
 	}
 
 	Cow.prototype.rotate = function(R){
 		var _this = this;
 		duration = R / _this.rspeed;
 		TweenMax.to(this.mesh.rotation, duration, {y: R, ease:Power1.easeInOut, onComplete:function(){_this.trigger("ready"), null}});
+	}
+
+	Cow.prototype.jump = function(){
+		console.log("To Sky");
+		var _this = this;
+		TweenMax.to(this.mesh.position, this.jumpTime, {y: _this.mesh.position.y + _this.objWidth * _this.mesh.scale.y, ease:Power1.easeInOut, yoyo:true, repeat:1, onComplete:function(){_this.trigger("ready", null)}});
 	}
 
 	Cow.prototype.trigger = function(updatestatus, para){
@@ -403,6 +411,9 @@ var Cows = function() {
 				this.status = "rotate";
 				this.rotatingDegree = para;
 				break;
+			case "jump":
+				this.status = "jump";
+				break;
 			default:
 				this.status = "ready";
 				break;
@@ -422,12 +433,21 @@ var Cows = function() {
 	  		case "forward":
 	  			this.move(this.movingTime);
 	  			this.status = "moving";
+	  			// this.move();
+	  			// this.walk();
 	  			break;
 	  		case "rotate":
 	  			this.rotate(this.rotatingDegree);
 	  			this.status = "moving";
 	  			break;
+	  		case "jump":
+	  			this.status = "jumping";
+	  			this.jump();
+	  			break;
 	  		case "moving":
+	  			this.walk();
+	  			break;
+	  		case "jumping":
 	  			this.walk();
 	  			break;
 	  		default:
@@ -443,20 +463,35 @@ var Cows = function() {
     								temp.objHeight*temp.mesh.scale.z
     								)
 	  					);
+	  	// 竟然外部是个自平衡的世界，那还不如让牛牛🐮们自己运动
 	}
 
+	Cow.prototype.interrupt = function(){
+		TweenMax.killTweensOf(this.head.rotation);
+        TweenMax.killTweensOf(this.tail.rotation);
+        // TweenMax.killTweensOf(this.eyeR.scale);
+        TweenMax.killTweensOf(this.head.position);
+        TweenMax.killTweensOf(this.mesh.position);
+        TweenMax.killTweensOf(this.mesh.rotation);
+
+        TweenMax.to(this.head.rotation, 0.5, {x: 0, y: 0, z: 0, ease:Power4.easeInOut});
+        TweenMax.to(this.tail.rotation, 0.5, {x: 0, y: 0, z: 0, ease:Power4.easeInOut});
+        TweenMax.to(this.head.position, 0.5, {x: 24, y: 22, z: 0, ease:Power4.easeInOut});
+	}
+
+	var defaultActionTime = 200;
 
 	this.cows = new Array();
 	var scale_base = 0.15;
 	var cowsInfo = [
 		[[200, 101, -30], [scale_base, scale_base, scale_base],  Math.PI/4],
-		[[220, 101, -25], [scale_base, scale_base, scale_base],  Math.PI/3],
-		[[235, 101, -35], [scale_base*1.1, scale_base*1.1, scale_base*1.1],  Math.PI],
-		[[199, 99.6, -45], [scale_base*0.5, scale_base*0.5, scale_base*0.5],  Math.PI/8],
-		[[205, 101, -60], [scale_base, scale_base, scale_base],  -Math.PI/4],
-		[[210, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/2],
-		[[225, 101, -120], [scale_base, scale_base, scale_base],  Math.PI/2],
-		[[185, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/7],
+		// [[220, 101, -25], [scale_base, scale_base, scale_base],  Math.PI/3],
+		// [[235, 101, -35], [scale_base*1.1, scale_base*1.1, scale_base*1.1],  Math.PI],
+		// [[199, 99.6, -45], [scale_base*0.5, scale_base*0.5, scale_base*0.5],  Math.PI/8],
+		// [[205, 101, -60], [scale_base, scale_base, scale_base],  -Math.PI/4],
+		// [[210, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/2],
+		// [[225, 101, -120], [scale_base, scale_base, scale_base],  Math.PI/2],
+		// [[185, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/7],
 	];
 
 	for (var i = 0; i < cowsInfo.length; i++) {
@@ -477,6 +512,8 @@ var Cows = function() {
     								temp.objHeight*temp.mesh.scale.z
     								)
     							);
+    	temp.buffer = new myAnti_Jitter(defaultActionTime + ( Math.random() - 0.5 ) * defaultActionTime);
+    	temp.buffer.clear();
     	this.mesh.add(temp.mesh);
     }
 

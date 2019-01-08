@@ -200,7 +200,7 @@ var Rabbits = function(){
 
 	  	// Parameters
 		this.objLength = 10;
-		this.objWidth =  15;
+		this.objWidth =  20;
 		this.objHeight = 26;
 
 		this.AABB = null;
@@ -433,9 +433,9 @@ var Rabbits = function(){
     									calculateMyAABB(
     										[this.rabbits[i].mesh.rotation.x, this.rabbits[i].mesh.rotation.y, this.rabbits[i].mesh.rotation.z],
     										[this.rabbits[i].mesh.position.x, this.rabbits[i].mesh.position.y, this.rabbits[i].mesh.position.z],
-    										this.rabbits[i].objLength * this.rabbits[i].mesh.scale.x,
-    										this.rabbits[i].objWidth * this.rabbits[i].mesh.scale.y,
-    										this.rabbits[i].objHeight * this.rabbits[i].mesh.scale.z
+    										 this.rabbits[i].objLength * this.rabbits[i].mesh.scale.x,
+    										 this.rabbits[i].objWidth *  this.rabbits[i].mesh.scale.y,
+    										 this.rabbits[i].objHeight * this.rabbits[i].mesh.scale.z
     									)
     								);
     	this.mesh.add(this.rabbits[i].mesh);

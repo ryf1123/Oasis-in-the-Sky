@@ -12,8 +12,8 @@ var Lake = function () {
     
     var waterGeo = new THREE.PlaneGeometry(300, 250, 80, 80);
     for (var j = 0; j < waterGeo.vertices.length; j++) {
-        waterGeo.vertices[j].x = waterGeo.vertices[j].x + Math.random() * Math.random() * 0.02;
-        waterGeo.vertices[j].y = waterGeo.vertices[j].y + Math.random() * Math.random() * 0.02;
+        waterGeo.vertices[j].x = waterGeo.vertices[j].x + Math.random() * Math.random() ;//* 0.02;
+        waterGeo.vertices[j].y = waterGeo.vertices[j].y + Math.random() * Math.random() ;//* 0.02;
     }
 
     this.water = new THREE.Mesh(waterGeo, waterMat);
@@ -22,9 +22,9 @@ var Lake = function () {
     this.water.position.y = 87;
     this.mesh.add(this.water);
         //===================================================== add Light
-    this.light = new THREE.DirectionalLight(0xefefff, 1.5);
-    this.light.position.set(1, 96, 1).normalize();
-    this.mesh.add(this.light);
+    //this.light = new THREE.DirectionalLight(0xefefff, 1.5);
+    //this.light.position.set(1, 96, 1).normalize();
+    //this.mesh.add(this.light);
     //}
 
 

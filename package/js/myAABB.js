@@ -41,6 +41,7 @@ var myAABB = (function () {
              if((this.min_z >= box.min_z && this.min_z <= box.max_z) || (box.min_z >= this.min_z && box.min_z <= this.max_z))
         {
             this.iscollision = true;
+            // box.iscollision = true;
         }
     };
 
