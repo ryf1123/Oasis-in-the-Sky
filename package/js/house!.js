@@ -99,6 +99,7 @@ var House = function () {
 
     //main function evey other function goes in here
     function init() {
+
         mesh.add(new THREE.AmbientLight(0xffffff, 0.01));
 
         //point light which makes the glowing effect each of the light is in one of the room
@@ -143,10 +144,10 @@ var House = function () {
         spotLight.shadow.camera.far = 40;
         spotLight.shadow.camera.fov = 110;
         mesh.add(spotLight);
-
-        //CALLING ALL THE FUNCTIONS AND ALSO CREATING THE OBJECTS
         gui();
+
         loadModels();
+
         //bedRoom items
 
         //create bed
@@ -240,6 +241,7 @@ var House = function () {
         doorTmp = drawDoor(5.5 * l, 3 * h, 10 * t);
         // scene.add(door);
         // scene.add(doorTmp);
+        // mesh.add(door);
         mesh.add(doorTmp);
         doorTmp.visible = true;
         doorTmp.rotation.set(90 * (3.14 / 180), 0, 0, 'XYZ');
@@ -278,6 +280,7 @@ var House = function () {
         sofa.position.y = 12;
         sofa.position.z = -5;
         sofa.rotation.set(0, -90 * (3.14 / 180), 0, 'XYZ');
+
         globalSofaAABB = new myAABB(calculateMyAABB(
             [sofa.rotation.y, sofa.rotation.x, sofa.rotation.z],
             [sofa.position.x * 0.2 + 130, sofa.position.y * 0.2 + 99, sofa.position.z * 0.2 + 200],
@@ -285,7 +288,7 @@ var House = function () {
             sofaDepth * sofa.scale.y,
             sofaFrameThickness * sofa.scale.z * 0.1
         ));
-        mesh.add(sofa);
+
         globalToiletAABB = new myAABB(calculateMyAABB(
             [90 * (3.14 / 180), 0, 0],
             [22 * 0.2 + 130, 1 * 0.2 + 99, 50 * 0.2 + 200],
@@ -293,10 +296,12 @@ var House = function () {
             15 * 0.5,
             15 * 0.5 * 0.1
         ));
+        mesh.add(sofa);
 
         videoBox = draVideoBox();
         videoBox.position.set(-55.15, 28.22, -2);
         videoBox.visible = false;
+        // scene.add(videoBox);
         mesh.add(videoBox);
 
         //drawing shower in the toilet
@@ -308,6 +313,9 @@ var House = function () {
         mesh.add(roof);
         roof.visible = true;
         //add stove to the scene
+
+        //drawing particles
+        var rain = particleRain();
 
         //Enviroment
         addFloor();
@@ -444,8 +452,10 @@ var House = function () {
         });
 
         var doorOpen = gui.add(parameters, 'doorOp').name('Maindoor Toggle').listen();
-        doorOpen.onChange(function (value) {
-            if (value == false) {
+        doorOpen.onChange(function () {
+            console.log("this.doorOpenFlag");
+            console.log(this.doorOpenFlag);
+            if (this.doorOpenFlag == false) {
                 t1 = window.setInterval(doorRotating, 50);
                 isGotoOpen = true;
             }
@@ -453,7 +463,6 @@ var House = function () {
                 isGotoOpen = false;
                 t1 = window.setInterval(doorRotating, 50);
             }
-
         });
 
         var tvOpen = gui.add(parameters, 'tvOp').name('Television Control').listen();
@@ -476,7 +485,6 @@ var House = function () {
             map: texture
             , overdraw: 0.1
         });
-
         return material;
     }
 
@@ -540,12 +548,14 @@ var House = function () {
             objLoader_toilet.setMaterials(materialCreator);
 
             objLoader_toilet.load('./models/toilet-water-closet.obj', function (toilet) {
+                // scene.add(tv);
                 mesh.add(toilet);
                 toilet.scale.set(0.5, 0.5, 0.5)
                 toilet.position.set(22, 1, 50);
                 toilet.rotation.set(0, 90 * (3.14 / 180), 0, 'XYZ');
                 toilet.castShadow = true;
                 toilet.receiveShadow = true;
+
             });
         };
 
@@ -892,7 +902,6 @@ var House = function () {
     function addSofa(translation, sofaBackHeight, sofaDepth, sofaWidth, sofaSeatHeight, sofaFrameThickness) {
         var sofa = new THREE.Object3D();
         var woodColor = new THREE.TextureLoader().load("images/sofa.jpg");
-
 
         var materials = [];
         for (var i = 0; i < 6; i++) {
@@ -1396,6 +1405,8 @@ var House = function () {
         ));
     }
 
+
+
     function frontBottomWindowWallpaper() {
         var tex = new THREE.TextureLoader().load('images/wall1t.jpg');
         tex.wrapS = THREE.RepeatWrapping;
@@ -1465,6 +1476,7 @@ var House = function () {
             2 * t * mesh1.scale.y,
             6 * h * mesh1.scale.z * 0.1
         ));
+        // scene.add(mesh);
     }
 
     function frontTopDoorWall() {
@@ -1770,7 +1782,7 @@ var House = function () {
             createMaterial('images/wall1t.jpg')  // front
         ];
 
-        var mesh1 = new THREE.Mesh(new THREE.BoxGeometry(14 * l, 14 * h, 0.5 * t), new THREE.MeshFaceMaterial(materials));
+        var mesh1 = new THREE.Mesh(new THREE.BoxGeometry(10 * l, 14 * h, 0.5 * t), new THREE.MeshFaceMaterial(materials));
         //mesh1.scale.set(1,1,-1)
         mesh1.rotation.set(0, -90 * (3.14 / 180), 0, 'XYZ');
         mesh1.position.z = -10.5 * p;
@@ -2153,7 +2165,9 @@ var House = function () {
     }
 
     function drawRoof() {
+
         // Create a 2D triangular shape using the THREE.Shape();
+
         roof = new THREE.Object3D();
         var triangleShape = new THREE.Shape();
         triangleShape.moveTo(-2, -2);
@@ -2176,12 +2190,97 @@ var House = function () {
         extrudedMesh.scale.set(10 * l, 5 * h, 9 * t);
         extrudedMesh.castShadow = true;
         extrudedMesh.receiveShadow = true;
+
+
         return roof;
     }
 
     //animate the scene
     function animate() {
+
         requestAnimationFrame(animate);
+
+        render();
+        update();//update the partices
+
+    }
+
+
+    //create particle function for the rain
+    function particleRain() {
+        var tex = new THREE.TextureLoader().load('images/raindrop2flip.png');
+        rain = new THREE.Object3D();
+        var particleCount = 2800,//how much particles is going to be created
+            particles = new THREE.Geometry(),
+            pMaterial = new THREE.ParticleBasicMaterial({ map: tex, size: 3, color: 0x0000ff, transparent: true, opacity: 0.4 });
+
+        // create the individual particles with random positions
+        for (var p = 0; p < particleCount; p++) {
+
+            var pX = Math.random() * 400 - 150,
+                pY = Math.random() * 400 - 150,
+                pZ = Math.random() * 400 - 150,
+                particle = new THREE.Vector3(pX, pY, pZ);
+
+
+            particles.vertices.push(particle);
+        }
+
+        // create the particle system
+
+        particleSys = new THREE.ParticleSystem(
+            particles,
+            pMaterial);
+        particleSys.sortParticles = true;
+        // add it to the scene
+        rain.add(particleSys);
+        update();// use the update function to animate the rain
+
+        return rain;
+    }
+
+
+    //animate the rain
+    function update() {
+
+        // add rotation to the particle
+        particleSys.rotation.z += 0.01;
+
+        var pCount = particleCount;
+        while (pCount--) {
+
+            // get particle and check for reset
+            particle =
+                particles.vertices[pCount];
+
+
+            if (particle.position.y < -200) {
+                particle.position.y = 200;
+                particle.velocity.y = 0;
+            }
+
+            //random velocity update and add position
+            particle.velocity.y -= Math.random() * .1;
+
+            particle.position.addSelf(
+                particle.velocity);
+        }
+
+        particleSys.
+            geometry.
+            __dirtyVertices = true;
+
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;//RESIZE THE WINDOW
+        camera.updateProjectionMatrix();
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function render() {
+        // controls.update(1);// UPDATE THE CONTROLLER TO RUN WITH THE FIRSTPERSONCONTROLLER
+        // renderer.render(scene, camera);
     }
 
 }

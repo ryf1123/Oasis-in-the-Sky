@@ -114,7 +114,7 @@
 </head>
 
 <body>
-    <embed src="music/bgm2.mp3" hidden="true" autostart="true" loop="true"> 
+    <embed src="music/bgm2.mp3" hidden="true" autostart="true" loop="true">
     <!-- <div id="glFullscreen">
     <canvas id="example"></canvas>
 </div>
@@ -181,6 +181,10 @@
 
         var velocity = new THREE.Vector3();
 
+        var door = true;
+
+        var doorOk = false;
+
         var Outer = (function () {
 
             var Validator = THREE.LoaderSupport.Validator;
@@ -233,7 +237,7 @@
             }
 
             Outer.prototype.initGL = function () {
-           
+
                 this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
 
                 this.renderer = new THREE.WebGLRenderer({
@@ -286,17 +290,17 @@
                 vcontrol.getObject().position.x = 130;
                 //vcontrol.getObject().position.y = 0;
                 vcontrol.getObject().position.z = 240;
-                
+
                 this.viewAABB = new myAABB(
-                                    calculateMyAABB( 
-                                        [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
-                                        [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
-                                        viewPara[0]*vcontrol.getObject().scale.x, 
-                                        viewPara[1]*vcontrol.getObject().scale.y, 
-                                        viewPara[2]*vcontrol.getObject().scale.z
-                                    )
-                                );
-                
+                    calculateMyAABB(
+                        [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                        [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                        viewPara[0] * vcontrol.getObject().scale.x,
+                        viewPara[1] * vcontrol.getObject().scale.y,
+                        viewPara[2] * vcontrol.getObject().scale.z
+                    )
+                );
+
                 this.scene.add(vcontrol.getObject());
 
                 // handle !
@@ -381,10 +385,12 @@
 
                         // The house
                         scope.house = new House();
-                        scope.house._mesh.position.set(130, 99, 200);
+                        scope.house._mesh.position.set(130, 99.2, 200);
                         scope.house._mesh.scale.set(0.2, 0.2, 0.2);
                         // scope.house._mesh.rotation.y = -Math.PI/180*20;
                         object.add(scope.house._mesh);
+                        console.log("scope.house");
+                        console.log(scope.house);
 
                         // The Trees
                         scope.forest = new Forest();
@@ -419,14 +425,14 @@
                         // The barn
                         scope.barn = object.children[11];
                         scope.barnAABB = new myAABB(
-                                                calculateMyAABB( 
-                                                    [0, 0, 0], 
-                                                    [196, 103, 148], 
-                                                    15,20,22
-                                                    )
-                                                );
+                            calculateMyAABB(
+                                [0, 0, 0],
+                                [196, 103, 148],
+                                15, 20, 22
+                            )
+                        );
 
-                        console.log(scope.barnAABB);
+                        console.log("hahaha" + scope.barnAABB);
 
                         scope.lake = new Lake();
                         object.add(scope.lake.mesh);
@@ -440,7 +446,7 @@
                         // scope.wolfs.wolfs[0].trigger("nod", null);
 
                         // scope.hedgehogs.hedgehogs[0].nod();
-                        
+
                         // for (var i = 0; i < scope.cows.cows.length; i++) {
                         //     scope.cows.cows[i].trigger("nod", null);
                         // }
@@ -449,20 +455,21 @@
 
                         // Try debugging
                         console.log(object.children[21]);
-                        
+
                     });
                 };
                 objLoader2.loadMtl('./models/low-poly-islands.mtl', null, onLoadMtl);
 
                 this.scene.add(this.objectSet);
                 this.loadSkyBox();
+                doorOk = true;
             };
 
             Outer.prototype.resizeDisplayGL = function () {
 
                 this.viewcamera.aspect = window.innerWidth / window.innerHeight;
                 this.viewcamera.updateProjectionMatrix();
-                
+
                 this.renderer.setSize(window.innerWidth, window.innerHeight, false);
                 this.updateCamera();
 
@@ -494,30 +501,31 @@
                     this.direction.x = Number(moveLeft) - Number(moveRight);
                     this.direction.normalize(); // this ensures consistent movements in all directions
 
-                    var speed = (running) ? 200:100;
+                    var speed = (running) ? 200 : 100;
 
                     if (moveForward || moveBackward) velocity.z -= this.direction.z * speed * delta;
                     if (moveLeft || moveRight) velocity.x -= this.direction.x * speed * delta;
- 
+
                     if (onObject == true) {
-                            velocity.y = Math.max(0, velocity.y);
-                            canJump = true;
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
                     }
 
                     vcontrol.getObject().translateX(velocity.x * delta);
                     vcontrol.getObject().translateY(velocity.y * delta);
                     vcontrol.getObject().translateZ(velocity.z * delta);
 
-
+                    // console.log("location--location--location--location--location");
+                    // console.log(vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z);
                     this.viewAABB.update(
-                                calculateMyAABB( 
-                                    [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
-                                    [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
-                                    viewPara[0]*vcontrol.getObject().scale.x, 
-                                    viewPara[1]*vcontrol.getObject().scale.y, 
-                                    viewPara[2]*vcontrol.getObject().scale.z
-                                    )
-                                );
+                        calculateMyAABB(
+                            [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                            [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                            viewPara[0] * vcontrol.getObject().scale.x,
+                            viewPara[1] * vcontrol.getObject().scale.y,
+                            viewPara[2] * vcontrol.getObject().scale.z
+                        )
+                    );
 
                     this.collideDetect();
                     var ifCollide = this.viewAABB.iscollision;
@@ -531,14 +539,17 @@
                     }
 
                     if (vcontrol.getObject().position.y < 60) {
-                            velocity.y = 0;
-                            vcontrol.getObject().position.y = 150;
-                            canJump = true;
+                        velocity.y = 0;
+                        vcontrol.getObject().position.y = 150;
+                        canJump = true;
 
                     }
                     this.prevTime = time;
+                    if (doorOk) {
+                        this.house.setDoorOpenFlag(door);
+                    }
                 }
-                
+
             };
 
             Outer.prototype.render = function () {
@@ -614,6 +625,10 @@
                         running = true;
                         break;
 
+                    case 70: // d
+                        door = door == true ? false : true;
+                        break;
+
                 }
 
             };
@@ -645,36 +660,49 @@
                     case 16:
                         running = false;
                         break;
-
                 }
             }
 
-            Outer.prototype.collideDetect = function() {
+            Outer.prototype.collideDetect = function () {
                 // For camera
                 var obj_camera = this.viewAABB;
                 // With trees
                 for (var i = 0; i < this.forest.trees.length; i++) {
                     obj_camera.detect(this.forest.trees[i].AABB);
-                    if(obj_camera.iscollision){
+                    if (obj_camera.iscollision) {
                         this.forest.trees[i].AABB.iscollision = true;
                         break;
                     }
                 }
 
-                for (var i = 0; i < this.cows.cows.length; i++){
+                for (var i = 0; i < this.cows.cows.length; i++) {
                     obj_camera.detect(this.cows.cows[i].AABB);
-                    if(obj_camera.iscollision){
+                    if (obj_camera.iscollision) {
                         this.cows.cows[i].AABB.iscollision = true;
                         break;
                     }
                 }
-                for (var i = 0; i < this.wolfs.wolfs.length; i++){
+                for (var i = 0; i < this.wolfs.wolfs.length; i++) {
                     obj_camera.detect(this.wolfs.wolfs[i].AABB);
                 }
-                for (var i = 0; i < this.rabbits.rabbits.length; i++){
+                for (var i = 0; i < this.rabbits.rabbits.length; i++) {
                     // console.log(this.rabbits.rabbits[i].AABB);
                     obj_camera.detect(this.rabbits.rabbits[i].AABB);
                 }
+                obj_camera.detect(this.house.sofaAABB);
+                obj_camera.detect(this.house.bedAABB);
+                obj_camera.detect(this.house.tableAABB);
+                obj_camera.detect(this.house.stoveAABB);
+                obj_camera.detect(this.house.wardrobeAABB);
+                obj_camera.detect(this.house.toiletAABB);
+                obj_camera.detect(this.house.frontBottomWindowWallAABB);
+                obj_camera.detect(this.house.frontMiddleWall);
+                obj_camera.detect(this.house.kitchenWallAABB);
+                obj_camera.detect(this.house.leftWallAABB);
+                obj_camera.detect(this.house.rightWallAABB);
+                obj_camera.detect(this.house.backWallAABB);
+                obj_camera.detect(this.house.toiletWallAABB);
+
                 obj_camera.detect(this.barnAABB);
                 // if (obj_camera.iscollision) {
                 //     console.log("Oops");
@@ -682,10 +710,10 @@
                 // }
             }
 
-            Outer.prototype.cowsControl = function() {
+            Outer.prototype.cowsControl = function () {
                 // 首先是牛牛的碰撞检测
                 // 注意晚上睡觉的接口
-                for (var i = 0; i < this.cows.cows.length; i++){
+                for (var i = 0; i < this.cows.cows.length; i++) {
                     // Shall I leave a cow for TTX ?
                     var cattle = this.cows.cows[i];
                     // Camera has done
@@ -702,10 +730,8 @@
                         cattle.AABB.detect(this.rabbits.rabbits[j].AABB);
                     }
 
-
-
                     // Done then
-                    if( cattle.AABB.iscollision ){
+                    if (cattle.AABB.iscollision) {
                         // Moving all states now
                         cattle.interrupt();
                         //if(cattle.status != "jumping")
@@ -722,14 +748,14 @@
                         cattle.interrupt();
                         var choice = Math.random();
                         console.log("The choice", choice);
-                        if(choice > 3.0/4){
+                        if (choice > 3.0 / 4) {
                             cattle.trigger("nod", null);
-                        }else if(choice > 2.0/4){
+                        } else if (choice > 2.0 / 4) {
                             cattle.trigger("jump", null);
-                        }else if(choice > 1.0/4){
+                        } else if (choice > 1.0 / 4) {
                             var time = 10 * Math.random();
                             cattle.trigger("forward", time);
-                        }else{
+                        } else {
                             var degree = 180 * (Math.random() * 2 - 1);
                             cattle.trigger("rotate", degree);
                         }
@@ -757,7 +783,7 @@
             app.render();
 
             //console.log(app.forest.trees[0].mesh.position.x);
-            if(!app.loading){
+            if (!app.loading) {
                 //app.forest.trees[0].mesh.rotation.y += 0.01;
                 //app.cows.loop();
                 app.cowsControl();
@@ -766,7 +792,7 @@
                 app.lake.animate();
                 app.forest.collideDetect();
             }
-                
+
         };
 
         function init(event) {
@@ -781,7 +807,7 @@
             render();
         }
 
-        
+
         window.addEventListener('resize', resizeWindow, false);
         window.addEventListener('load', init, false);
 
