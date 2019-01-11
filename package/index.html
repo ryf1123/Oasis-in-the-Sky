@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -169,6 +169,7 @@
 
         var isbind_boat = false;
         var isbind_ship = false;
+        var isbind_cow = false;
 
         var ondown = false;
 
@@ -219,6 +220,7 @@
             var Validator = THREE.LoaderSupport.Validator;
 
             var viewPara = [4, 4, 4];
+            var cowPara = [10,4,10];
 
             //function Outer( elementToBindTo ) {
             function Outer() {
@@ -251,6 +253,7 @@
                 this.airship = null;
                 this.lake = null;
                 this.cloud = null;
+
                 this.timeDay = 0;
 
                 // raycaster
@@ -415,7 +418,6 @@
             }
 
 
-
             Outer.prototype.sunZoom = function () {
                 var dirLight = new THREE.DirectionalLight(0xffffff, 0.05);
                 dirLight.position.set(5000, 1000, -1000).normalize();
@@ -460,6 +462,7 @@
                         // The environment need to receive the shadow ?
                         //object.children[21].receiveShadow = true;
                         scope.addrain(1, true, 0.5, true, true, 0xffffff);
+
                         object.add(scope.cloud);
 
                         // The house
@@ -509,6 +512,7 @@
                         object.children[17].position.x += 85;
                         object.children[17].position.y += 91;
                         object.children[17].position.z += 42;
+
 
                         // The barn
                         scope.barn = object.children[12];
@@ -581,6 +585,13 @@
                         isbind_ship = !isbind_ship;
                         console.log("ship bind");
                     }
+                    if(vcontrol.getObject().position.x >= this.cows.cows[0].mesh.position.x - 2 && vcontrol.getObject().position.x <= this.cows.cows[0].mesh.position.x + 2
+                        && vcontrol.getObject().position.y >= this.cows.cows[0].mesh.position.y - 5 && vcontrol.getObject().position.y <= this.cows.cows[0].mesh.position.y + 15
+                        && vcontrol.getObject().position.z >= this.cows.cows[0].mesh.position.z -2 && vcontrol.getObject().position.z <= this.cows.cows[0].mesh.position.z + 2)
+                    {
+                        isbind_cow = !isbind_cow;
+                        console.log("cow bind");
+                    }
                 }
                 prevtouch = ontouch;
             };
@@ -612,6 +623,10 @@
             Outer.prototype.updateCamera = function () {
                 if (vcontrol.isLocked === true) {
                     this.raycaster.ray.origin.copy(vcontrol.getObject().position);
+                    if(isbind_cow)
+                    {
+                        this.raycaster.ray.origin.y -= 12;
+                    }
                     this.raycaster.ray.origin.y += 6;
                     var intersections = this.raycaster.intersectObjects(this.scene.children, true);
                     var onObject = intersections.length > 0;
@@ -621,7 +636,7 @@
 
                     velocity.x -= velocity.x * 10.0 * delta;
                     velocity.z -= velocity.z * 10.0 * delta;
-                    
+
                     if(!isbind_ship)velocity.y -= 9.8 * 10.0 * delta;
                     else velocity.y -= velocity.y * 10.0 * delta;
                     
@@ -629,13 +644,13 @@
                     this.direction.x = Number(moveLeft) - Number(moveRight);
                     this.direction.normalize(); // this ensures consistent movements in all directions
 
-                    this.bind_item();
-
+                    this.bind_item(vcontrol.getObject().position.y);
+                    console.log();
                     var speed = (running) ? 250:100;
 
                     if (moveForward || moveBackward) velocity.z -= this.direction.z * speed * delta;
                     if (moveLeft || moveRight) velocity.x -= this.direction.x * speed * delta;
-    
+
                     if(isbind_ship && !ondown)
                     {
                             velocity.y = Math.max(0, velocity.y);
@@ -644,6 +659,12 @@
                     else if(isbind_ship && ondown)
                     {
                         velocity.y = Math.max(-20, velocity.y);
+                        canJump = true;
+                    }
+                    else if(isbind_cow)
+                    {
+                        //不要问我为什么是107.2....调出来的,只能在最开始的平面跳
+                        velocity.y =  (vcontrol.getObject().position.y > 107.2)?velocity.y :  Math.max(0, velocity.y);
                         canJump = true;
                     }
                     else if (onObject == true) {
@@ -662,6 +683,17 @@
                     ship_pox = this.airship.position.x;
                     ship_poy = this.airship.position.y;
                     ship_poz = this.airship.position.z;
+
+
+                    if(isbind_cow)
+                    {
+                        this.cows.cows[0].mesh.rotation.y = vcontrol.getObject().rotation.y;
+                        this.cows.cows[0].mesh.translateX(velocity.x * delta);
+                        this.cows.cows[0].mesh.translateY(velocity.y * delta);
+                        this.cows.cows[0].mesh.translateZ(velocity.z * delta);
+                        this.cows.cows[0].mesh.rotation.y += Math.PI / 2;
+                    }
+
 
                     if(isbind_ship)
                     {
@@ -694,16 +726,29 @@
                         this.woodenboat.position.x += boat_pox;
                         this.woodenboat.position.z += boat_poz;
                     }
-
-                    this.viewAABB.update(
-                                calculateMyAABB( 
-                                    [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z], 
-                                    [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z], 
-                                    viewPara[0]*vcontrol.getObject().scale.x, 
-                                    viewPara[1]*vcontrol.getObject().scale.y, 
-                                    viewPara[2]*vcontrol.getObject().scale.z
-                                    )
-                                );
+                    if(isbind_cow)
+                    {
+                        this.viewAABB.update(
+                            calculateMyAABB(
+                                [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                                [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                                cowPara[0] * vcontrol.getObject().scale.x,
+                                cowPara[1] * vcontrol.getObject().scale.y,
+                                cowPara[2] * vcontrol.getObject().scale.z
+                            )
+                        );
+                    }
+                    else {
+                        this.viewAABB.update(
+                            calculateMyAABB(
+                                [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                                [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                                viewPara[0] * vcontrol.getObject().scale.x,
+                                viewPara[1] * vcontrol.getObject().scale.y,
+                                viewPara[2] * vcontrol.getObject().scale.z
+                            )
+                        );
+                    }
 
                     this.collideDetect();
                     var ifCollide = this.viewAABB.iscollision;
@@ -711,6 +756,14 @@
                         vcontrol.getObject().translateX(-velocity.x * delta);
                         vcontrol.getObject().translateY(-velocity.y * delta);
                         vcontrol.getObject().translateZ(-velocity.z * delta);
+                        if(isbind_cow)
+                        {
+                            this.cows.cows[0].mesh.rotation.y -= Math.PI / 2;
+                            this.cows.cows[0].mesh.translateX(-velocity.x * delta);
+                            this.cows.cows[0].mesh.translateY(-velocity.y * delta);
+                            this.cows.cows[0].mesh.translateZ(-velocity.z * delta);
+                            this.cows.cows[0].mesh.rotation.y += Math.PI / 2;
+                        }
                         this.viewAABB.collisionOver();
                         if (moveForward || moveBackward) velocity.z += this.direction.z * speed * delta;
                         if (moveLeft || moveRight) velocity.x += this.direction.x * speed * delta;
@@ -735,32 +788,30 @@
             Outer.prototype.render = function () {
                 if (!this.renderer.autoClear) this.renderer.clear();
                 this.renderer.render(this.scene, this.viewcamera);
-
                 //产生雨滴动画效果
-                var vertices = this.cloud.geometry.vertices;
-                if (raining) {
-                    vertices.forEach(function (v) {
-                        v.y = v.y - (v.velocityY) * 3;
-                        v.x = v.x - (v.velocityX) * .5;
+                if(!this.loading){
+                    var vertices = this.cloud.geometry.vertices;
+                    if (raining) {
+                        vertices.forEach(function (v) {
+                            v.y = v.y - (v.velocityY) * 6;
+                            v.x = v.x - (v.velocityX) * .5;
 
-                        if (v.y <= -60) v.y = 60;
-                        if (v.y >= 60) v.y = 60;
-                        //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
-                    });
+                            if (v.y <= -60) v.y = 60;
+                            if (v.y >= 60) v.y = 60;
+                            //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+                        });
+
+                    }
+                    else {
+                        vertices.forEach(function (v) {
+                            v.y = 5000;
+                            //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+                        });
+                    }
+                    this.cloud.geometry.verticesNeedUpdate = true;
 
                 }
-                else {
-                    vertices.forEach(function (v) {
-                        v.y = 5000;
-                        //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
-                    });
-
-
-                }
-
                 //设置实时更新网格的顶点信息
-                this.cloud.geometry.verticesNeedUpdate = true;
-
                 this.updateCamera();
 
                 if(onshot && !prevonshot)
@@ -895,10 +946,6 @@
                         running = true;
                         break;
 
-                    case 49:    //1
-                        raining = ~raining;
-                        break;
-
                     case 70: // f
                         door = door == true ? false : true;
                         break;
@@ -918,6 +965,9 @@
                         }
                         break;
 
+                    case 49:    //1
+                        raining = ~raining;
+                        break;
                 }
 
             };
