@@ -132,3 +132,23 @@ Some other attention
 - We give up the god view
 - Preparing for presentation show
 
+
+
+### Three days before checking
+
+Well, today is Friday and we almost finish everything, 
+
+![image-with_trees](./assets/image-nearlydone.jpg)
+
+As you can see
+
+- The house is inserted with AABB placed.
+- The envirnoment can turn to night now
+- We add drivable boat and air ballon
+
+We still need
+
+- Some clouds and complex light
+- The video in the TV
+- Drivable cow?
+- The rain
