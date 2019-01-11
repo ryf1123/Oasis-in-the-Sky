@@ -378,8 +378,15 @@ var Cows = function() {
 	}
 
 	Cow.prototype.jump = function(){
-		console.log("To Sky");
 		var _this = this;
+		TweenMax.to(this.mesh.position, this.jumpTime, {y: _this.mesh.position.y + _this.objWidth * _this.mesh.scale.y, ease:Power1.easeInOut, yoyo:true, repeat:1, onComplete:function(){_this.trigger("ready", null)}});
+	}
+
+	Cow.prototype.retreat = function(){
+		var _this = this;
+		side = -5;
+		axisPos = [_this.mesh.position.x + side * Math.cos(_this.mesh.rotation.y), _this.mesh.position.z - side * Math.sin(_this.mesh.rotation.y)];
+		TweenMax.to(this.mesh.position, 2 * this.jumpTime, {x: axisPos[0], z:axisPos[1], ease:Power1.easeInOut});
 		TweenMax.to(this.mesh.position, this.jumpTime, {y: _this.mesh.position.y + _this.objWidth * _this.mesh.scale.y, ease:Power1.easeInOut, yoyo:true, repeat:1, onComplete:function(){_this.trigger("ready", null)}});
 	}
 
@@ -413,6 +420,9 @@ var Cows = function() {
 				break;
 			case "jump":
 				this.status = "jump";
+				break;
+			case "retreat":
+				this.status = "retreat";
 				break;
 			default:
 				this.status = "ready";
@@ -450,6 +460,10 @@ var Cows = function() {
 	  		case "jumping":
 	  			this.walk();
 	  			break;
+	  		case "retreat":
+	  			this.status = "jumping";
+	  			this.retreat();
+	  			break;
 	  		default:
 	  			// do nothing
 	  	}
@@ -469,7 +483,7 @@ var Cows = function() {
 	Cow.prototype.interrupt = function(){
 		TweenMax.killTweensOf(this.head.rotation);
         TweenMax.killTweensOf(this.tail.rotation);
-        // TweenMax.killTweensOf(this.eyeR.scale);
+        TweenMax.killTweensOf(this.eyeR.scale);
         TweenMax.killTweensOf(this.head.position);
         TweenMax.killTweensOf(this.mesh.position);
         TweenMax.killTweensOf(this.mesh.rotation);
@@ -477,6 +491,7 @@ var Cows = function() {
         TweenMax.to(this.head.rotation, 0.5, {x: 0, y: 0, z: 0, ease:Power4.easeInOut});
         TweenMax.to(this.tail.rotation, 0.5, {x: 0, y: 0, z: 0, ease:Power4.easeInOut});
         TweenMax.to(this.head.position, 0.5, {x: 24, y: 22, z: 0, ease:Power4.easeInOut});
+        TweenMax.to(this.eyeR.scale, 0.5, {x: 1, y: 1, z: 1, ease:Power4.easeInOut});
 	}
 
 	var defaultActionTime = 200;
@@ -485,7 +500,7 @@ var Cows = function() {
 	var scale_base = 0.15;
 	var cowsInfo = [
 		[[200, 101, -30], [scale_base, scale_base, scale_base],  Math.PI/4],
-		// [[220, 101, -25], [scale_base, scale_base, scale_base],  Math.PI/3],
+		[[220, 101, -25], [scale_base, scale_base, scale_base],  Math.PI/3],
 		// [[235, 101, -35], [scale_base*1.1, scale_base*1.1, scale_base*1.1],  Math.PI],
 		// [[199, 99.6, -45], [scale_base*0.5, scale_base*0.5, scale_base*0.5],  Math.PI/8],
 		// [[205, 101, -60], [scale_base, scale_base, scale_base],  -Math.PI/4],
