@@ -463,8 +463,8 @@
                         //object.children[21].receiveShadow = true;
                         scope.addrain(1, true, 0.5, true, true, 0xffffff);
 
-                        object.add(scope.cloud);
-
+                        //object.add(scope.cloud);
+                        scope.scene.add(scope.cloud);
                         // The house
                         scope.house = new House();
                         scope.house._mesh.position.set(130, 99.2, 200);
@@ -628,7 +628,7 @@
                         this.raycaster.ray.origin.y -= 12;
                     }
                     this.raycaster.ray.origin.y += 6;
-                    var intersections = this.raycaster.intersectObjects(this.scene.children, true);
+                    var intersections = this.raycaster.intersectObjects(this.objectSet.children, true);//(this.scene.children, true);
                     var onObject = intersections.length > 0;
                     // console.log("The intersections:" + intersections.length)
                     var time = performance.now();
