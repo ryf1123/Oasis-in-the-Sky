@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -199,6 +199,8 @@
 
         var running = false;
 
+        var raining = false;
+
         var velocity = new THREE.Vector3();
 
         var door = true;
@@ -248,6 +250,7 @@
                 this.woodenboat = null;
                 this.airship = null;
                 this.lake = null;
+                this.cloud = null;
                 this.timeDay = 0;
 
                 // raycaster
@@ -374,6 +377,45 @@
                 TweenMax.to(this.ballon.position, 6, { y: 0, ease: Power1.easeInOut, onComplete: function () { _this.ballonUp() } });
             }
 
+
+            Outer.prototype.addrain = function (size, transparent, opacity, vertexColors, sizeAttenuation, color) {
+                var texture = new THREE.TextureLoader().load("./images/rain.png");
+                //存放粒子数据的网格
+                var geom = new THREE.Geometry();
+                //样式化粒子的THREE.PointCloudMaterial材质
+                var material = new THREE.PointsMaterial({
+                    size: size,
+                    transparent: transparent,
+                    opacity: opacity,
+                    vertexColors: vertexColors,
+                    sizeAttenuation: sizeAttenuation,
+                    color: color,
+                    map: texture,
+                    depthTest: false  //设置解决透明度有问题的情况
+                });
+                var range = 500;
+                for (var i = 0; i < 15000; i++) {
+                    //添加顶点的坐标
+                    var particle = new THREE.Vector3(Math.random() * range - range / 2, Math.random() * range - range / 2, Math.random() * range - range / 2);
+                    particle.velocityY = 0.1 + Math.random() / 5;
+                    particle.velocityX = (Math.random() - 0.5) / 3;
+                    geom.vertices.push(particle);
+                    var color = new THREE.Color(0xffffff);
+                    //.setHSL ( h, s, l ) h — 色调值在0.0和1.0之间 s — 饱和值在0.0和1.0之间 l — 亮度值在0.0和1.0之间。 使用HSL设置颜色。
+                    //随机当前每个粒子的亮度
+                    //color.setHSL(color.getHSL().h, color.getHSL().s, Math.random() * color.getHSL().l);
+                    geom.colors.push(color);
+                }
+
+                //生成模型，添加到场景当中
+                this.cloud = new THREE.Points(geom, material);
+                this.cloud.verticesNeedUpdate = true;
+                this.cloud.position.y = 150;
+                // this.scene.add(this.cloud);
+            }
+
+
+
             Outer.prototype.sunZoom = function () {
                 var dirLight = new THREE.DirectionalLight(0xffffff, 0.05);
                 dirLight.position.set(5000, 1000, -1000).normalize();
@@ -417,6 +459,8 @@
                         // Here append anythins
                         // The environment need to receive the shadow ?
                         //object.children[21].receiveShadow = true;
+                        scope.addrain(1, true, 0.5, true, true, 0xffffff);
+                        object.add(scope.cloud);
 
                         // The house
                         scope.house = new House();
@@ -691,6 +735,32 @@
             Outer.prototype.render = function () {
                 if (!this.renderer.autoClear) this.renderer.clear();
                 this.renderer.render(this.scene, this.viewcamera);
+
+                //产生雨滴动画效果
+                var vertices = this.cloud.geometry.vertices;
+                if (raining) {
+                    vertices.forEach(function (v) {
+                        v.y = v.y - (v.velocityY) * 3;
+                        v.x = v.x - (v.velocityX) * .5;
+
+                        if (v.y <= -60) v.y = 60;
+                        if (v.y >= 60) v.y = 60;
+                        //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+                    });
+
+                }
+                else {
+                    vertices.forEach(function (v) {
+                        v.y = 5000;
+                        //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+                    });
+
+
+                }
+
+                //设置实时更新网格的顶点信息
+                this.cloud.geometry.verticesNeedUpdate = true;
+
                 this.updateCamera();
 
                 if(onshot && !prevonshot)
@@ -823,6 +893,10 @@
 
                     case 16:
                         running = true;
+                        break;
+
+                    case 49:    //1
+                        raining = ~raining;
                         break;
 
                     case 70: // f
