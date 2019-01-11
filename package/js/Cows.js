@@ -408,7 +408,8 @@ var Cows = function() {
 				this.status = "nod";
 				break;
 			case "sleep":
-				this.status = "sleep";
+				if(this.status != "sleeping")
+					this.status = "sleep";
 				break;
 			case "forward":
 				this.status = "forward";
@@ -499,14 +500,16 @@ var Cows = function() {
 	this.cows = new Array();
 	var scale_base = 0.15;
 	var cowsInfo = [
-		[[200, 101, -30], [scale_base, scale_base, scale_base],  Math.PI/4],
+		[[150, 101, 160], [scale_base, scale_base, scale_base],  Math.PI/4],
 		[[220, 101, -25], [scale_base, scale_base, scale_base],  Math.PI/3],
-		// [[235, 101, -35], [scale_base*1.1, scale_base*1.1, scale_base*1.1],  Math.PI],
-		// [[199, 99.6, -45], [scale_base*0.5, scale_base*0.5, scale_base*0.5],  Math.PI/8],
-		// [[205, 101, -60], [scale_base, scale_base, scale_base],  -Math.PI/4],
-		// [[210, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/2],
-		// [[225, 101, -120], [scale_base, scale_base, scale_base],  Math.PI/2],
-		// [[185, 101, -80], [scale_base, scale_base, scale_base],  -Math.PI/7],
+		[[235, 101, -35], [scale_base*1.1, scale_base*1.1, scale_base*1.1],  Math.PI],
+		[[-330, 161, -290], [scale_base*0.5, scale_base*0.5, scale_base*0.5],  Math.PI/8],
+		[[-342, 161, -295], [scale_base, scale_base, scale_base],  -Math.PI/4],
+		[[-355, 161, -280], [scale_base, scale_base, scale_base],  -Math.PI/2],
+		[[-330, 161, -300], [scale_base, scale_base, scale_base],  Math.PI/2],
+		[[-340, 161, -275], [scale_base, scale_base, scale_base],  -Math.PI/7],
+		[[-345, 161, -276], [scale_base, scale_base, scale_base],  -Math.PI/7],
+		[[-335, 161, -269], [scale_base, scale_base, scale_base],  -Math.PI/7],
 	];
 
 	for (var i = 0; i < cowsInfo.length; i++) {

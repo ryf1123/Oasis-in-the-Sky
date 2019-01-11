@@ -165,6 +165,8 @@
 
         'use strict';
 
+        var day = true;
+
         var isbind_boat = false;
         var isbind_ship = false;
 
@@ -202,6 +204,13 @@
         var door = true;
 
         var doorOk = false;
+
+        var globalCubeShader;
+
+        var adCubeMap;
+        var anCubeMap;
+
+        var sunLight;
 
         var Outer = (function () {
 
@@ -252,6 +261,10 @@
 
                 this.viewAABB = null;
                 this.barnAABB = null;
+
+                // day and night
+                this.Skybox = null;
+                // this.anSkybox = null;
             }
 
             Outer.prototype.initGL = function () {
@@ -305,9 +318,9 @@
 
                 });
 
-                vcontrol.getObject().position.x = 130;
-                //vcontrol.getObject().position.y = 0;
-                vcontrol.getObject().position.z = 240;
+                vcontrol.getObject().position.x = 145;
+                vcontrol.getObject().position.y = 120;
+                vcontrol.getObject().position.z = 175;
 
                 this.viewAABB = new myAABB(
                     calculateMyAABB(
@@ -329,16 +342,20 @@
                 document.addEventListener('keyup', this.onKeyUp, false);
 
                 //var ambientLight = new THREE.AmbientLight( 0x404040, 0.0 );
-                var sunLight = new THREE.PointLight(0x010101, 0.01, 700, 2);
-                sunLight.position.set(500, 500, 200);
-                var directionalLight1 = new THREE.DirectionalLight(0x808080);
-                var directionalLight2 = new THREE.DirectionalLight(0x808080);
+                sunLight = new THREE.PointLight(0xffffff, 0.75);
+                sunLight.position.set(1500, 1500, 0);
+                var directionalLight1 = new THREE.DirectionalLight(0x808080, 1);
+                var directionalLight2 = new THREE.DirectionalLight(0x808080, 0.5);
+                var directionalLight3 = new THREE.DirectionalLight(0x808080, 0.5);
                 // 0xC0C090
-                directionalLight1.position.set(-100, -50, 100);
-                directionalLight2.position.set(100, 50, -100);
+                directionalLight1.position.set(-500, 500, 500);
+                directionalLight2.position.set(500, 500, -500);
+                directionalLight3.position.set(0, -1000, 0);
 
                 this.scene.add(directionalLight1);
                 this.scene.add(directionalLight2);
+                this.scene.add(directionalLight3);
+                this.scene.add(sunLight);
 
                 this.sunZoom();
 
@@ -362,8 +379,8 @@
                 dirLight.position.set(5000, 1000, -1000).normalize();
                 dirLight.color.setHSL(0.1, 0.7, 0.5);
                 dirLight.castShadow = true;
-                var _ss = this.scene;
-                _ss.add(dirLight);
+                //var _ss = this.scene;
+                //_ss.add(dirLight);
                 // lensflares
                 var textureLoader = new THREE.TextureLoader();
                 var textureFlare0 = textureLoader.load('assets/lensflare/lensflare0.png');
@@ -487,6 +504,10 @@
 
                 this.scene.add(this.objectSet);
                 this.loadSkyBox();
+
+                console.log("The sky box:")
+                console.log(this.Skybox);
+                this.scene.add(this.Skybox);
                 doorOk = true;
             };
 
@@ -566,7 +587,7 @@
 
                     this.bind_item();
 
-                    var speed = (running) ? 200:100;
+                    var speed = (running) ? 250:100;
 
                     if (moveForward || moveBackward) velocity.z -= this.direction.z * speed * delta;
                     if (moveLeft || moveRight) velocity.x -= this.direction.x * speed * delta;
@@ -681,33 +702,76 @@
             };
 
             Outer.prototype.loadSkyBox = function () {
-                var aCubeMap = THREE.ImageUtils.loadTextureCube([
-                    'assets/img/px.jpg',
-                    'assets/img/nx.jpg',
-                    'assets/img/py.jpg',
-                    'assets/img/ny.jpg',
-                    'assets/img/pz.jpg',
-                    'assets/img/nz.jpg'
+                adCubeMap = THREE.ImageUtils.loadTextureCube([
+                    // 'assets/img/px.jpg',
+                    // 'assets/img/nx.jpg',
+                    // 'assets/img/py.jpg',
+                    // 'assets/img/ny.jpg',
+                    // 'assets/img/pz.jpg',
+                    // 'assets/img/nz.jpg'
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg'
+                    'assets/img/round.jpg',
+                    'assets/img/round.jpg',
+                    'assets/img/up.jpg',
+                    'assets/img/down.jpg',
+                    'assets/img/round.jpg',
+                    'assets/img/round.jpg'
                 ]);
-                aCubeMap.format = THREE.RGBFormat;
+                adCubeMap.format = THREE.RGBFormat;
 
-                var aShader = THREE.ShaderLib['cube'];
-                aShader.uniforms['tCube'].value = aCubeMap;
+                // var adShader = THREE.ShaderLib['cube'];
+                // adShader.uniforms['tCube'].value = adCubeMap;
+                globalCubeShader = THREE.ShaderLib['cube'];
+                globalCubeShader.uniforms['tCube'].value = adCubeMap;
 
-                var aSkyBoxMaterial = new THREE.ShaderMaterial({
-                    fragmentShader: aShader.fragmentShader,
-                    vertexShader: aShader.vertexShader,
-                    uniforms: aShader.uniforms,
+                var adSkyBoxMaterial = new THREE.ShaderMaterial({
+                    fragmentShader: globalCubeShader.fragmentShader,
+                    vertexShader: globalCubeShader.vertexShader,
+                    uniforms: globalCubeShader.uniforms,
                     depthWrite: false,
                     side: THREE.BackSide
                 });
 
-                var aSkybox = new THREE.Mesh(
+                this.Skybox = new THREE.Mesh(
                     new THREE.BoxGeometry(100000000, 100000000, 100000000),
-                    aSkyBoxMaterial
+                    adSkyBoxMaterial
                 );
 
-                this.scene.add(aSkybox);
+                // this.scene.add(this.adSkybox);
+
+                anCubeMap = THREE.ImageUtils.loadTextureCube([
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg'
+                    
+                ]);
+                anCubeMap.format = THREE.RGBFormat;
+
+                // var anShader = THREE.ShaderLib['cube'];
+                // anShader.uniforms['tCube'].value = anCubeMap;
+
+                // var anSkyBoxMaterial = new THREE.ShaderMaterial({
+                //     fragmentShader: anShader.fragmentShader,
+                //     vertexShader: anShader.vertexShader,
+                //     uniforms: anShader.uniforms,
+                //     depthWrite: false,
+                //     side: THREE.BackSide
+                // });
+
+                // anSkybox = new THREE.Mesh(
+                //     new THREE.BoxGeometry(200000000, 200000000, 200000000),
+                //     anSkyBoxMaterial
+                // );
+
+                // this.scene.add(this.anSkybox);
             }
 
             // Key board
@@ -763,6 +827,21 @@
 
                     case 70: // f
                         door = door == true ? false : true;
+                        break;
+
+                    case 90: // z
+                        if(day){
+                            globalCubeShader.uniforms['tCube'].value = anCubeMap;
+                            day = false;
+                            sunLight.intensity = 0.05;
+                            console.log("Night")
+                        }
+                        else{
+                            globalCubeShader.uniforms['tCube'].value = adCubeMap;
+                            day = true;
+                            sunLight.intensity = 0.75;
+                            console.log("Morning")
+                        }
                         break;
 
                 }
@@ -862,7 +941,7 @@
             Outer.prototype.cowsControl = function() {
                 // 首先是牛牛的碰撞检测
                 // 注意晚上睡觉的接口
-                for (var i = 0; i < this.cows.cows.length; i++){
+                for (var i = 1; i < this.cows.cows.length; i++){
                     // Shall I leave a cow for TTX ?
                     var cattle = this.cows.cows[i];
                     // Camera has done
@@ -887,42 +966,49 @@
 
 
                     // Done then
-                    if( cattle.AABB.iscollision && cattle.status != "jumping"){
-                        // Moving all states now
-                        //if (cattle.status != "jumping")
-                        cattle.interrupt();
-                        //if(cattle.status != "jumping")
-                        //    cattle.trigger("jump", null);
-                        //cattle.trigger("jump", null);
-                        cattle.trigger("retreat", null);
-                        //console.log("Cow Number: ", i, "Oops");
-                        cattle.AABB.collisionOver();
-                        //console.log("Back jumping");
-                    }
+                    if(day){
+                        if( cattle.AABB.iscollision && cattle.status != "jumping"){
+                            // Moving all states now
+                            //if (cattle.status != "jumping")
+                            cattle.interrupt();
+                            //if(cattle.status != "jumping")
+                            //    cattle.trigger("jump", null);
+                            //cattle.trigger("jump", null);
+                            cattle.trigger("retreat", null);
+                            //console.log("Cow Number: ", i, "Oops");
+                            cattle.AABB.collisionOver();
+                            //console.log("Back jumping");
+                        }
 
-                    // // Can do something then
-                    else if (cattle.buffer.count() && cattle.status != "jumping") {
-                        // Delete all moving states now
-                        cattle.interrupt();
-                        var choice = Math.floor(Math.random()*5);
-                        
-                        if(choice == 4){
-                            //console.log("Noding");
-                            cattle.trigger("nod", null);
-                        }else if(choice == 3){
-                            //console.log("Jumping");
-                            cattle.trigger("jump", null);
-                        }else if(choice == 2){
-                            //console.log("Forwarding");
-                            var time = 10 * Math.random();
-                            cattle.trigger("forward", time);
-                        }else if(choice == 1){
-                            //console.log("Rotating");
-                            var degree = (Math.random() * 2 - 1) * Math.PI;
-                            cattle.trigger("rotate", degree);
-                        }else{
-                            // do nothing
-                            //console.log("Idle");
+                        // // Can do something then
+                        else if (cattle.buffer.count() && cattle.status != "jumping") {
+                            // Delete all moving states now
+                            cattle.interrupt();
+                            var choice = Math.floor(Math.random()*5);
+                            
+                            if(choice == 4){
+                                //console.log("Noding");
+                                cattle.trigger("nod", null);
+                            }else if(choice == 3){
+                                //console.log("Jumping");
+                                cattle.trigger("jump", null);
+                            }else if(choice == 2){
+                                //console.log("Forwarding");
+                                var time = 10 * Math.random();
+                                cattle.trigger("forward", time);
+                            }else if(choice == 1){
+                                //console.log("Rotating");
+                                var degree = (Math.random() * 2 - 1) * Math.PI;
+                                cattle.trigger("rotate", degree);
+                            }else{
+                                // do nothing
+                                //console.log("Idle");
+                            }
+                        }
+                    }else{
+                        if(cattle.status != "sleeping"){
+                            cattle.interrupt();
+                            cattle.trigger("sleep", null);
                         }
                     }
 
@@ -953,42 +1039,48 @@
                         littlerab.AABB.detect(this.rabbits.rabbits[j].AABB);
                     }
                     // Done then
-                    if( littlerab.AABB.iscollision){
-                        // Moving all states now
-                        //if (cattle.status != "jumping")
-                        littlerab.interrupt();
-                        //if(cattle.status != "jumping")
-                        //    cattle.trigger("jump", null);
-                        //cattle.trigger("jump", null);
-                        littlerab.trigger("retreat", null);
-                        //console.log("Cow Number: ", i, "Oops");
-                        littlerab.AABB.collisionOver();
-                        //console.log("Back jumping");
-                    }
-
-                    // // Can do something then
-                    else if (littlerab.buffer.count()) {
-                        // Delete all moving states now
-                        littlerab.interrupt();
-                        var choice = Math.floor(Math.random()*4);
-                        
-                        if(choice == 3){
-                            //console.log("Noding");
-                            littlerab.trigger("nod", null);
-                        }else if(choice == 2){
-                            //console.log("Forwarding");
-                            var time = 10 * Math.random();
-                            littlerab.trigger("forward", time);
-                        }else if(choice == 1){
-                            //console.log("Rotating");
-                            var degree = (Math.random() * 2 - 1) * Math.PI;
-                            littlerab.trigger("rotate", degree);
-                        }else{
-                            // do nothing
-                            //console.log("Idle");
+                    if(day){
+                        if( littlerab.AABB.iscollision){
+                            // Moving all states now
+                            //if (cattle.status != "jumping")
+                            littlerab.interrupt();
+                            //if(cattle.status != "jumping")
+                            //    cattle.trigger("jump", null);
+                            //cattle.trigger("jump", null);
+                            littlerab.trigger("retreat", null);
+                            //console.log("Cow Number: ", i, "Oops");
+                            littlerab.AABB.collisionOver();
+                            //console.log("Back jumping");
                         }
-                    }
 
+                        // // Can do something then
+                        else if (littlerab.buffer.count()) {
+                            // Delete all moving states now
+                            littlerab.interrupt();
+                            var choice = Math.floor(Math.random()*4);
+                            
+                            if(choice == 3){
+                                //console.log("Noding");
+                                littlerab.trigger("nod", null);
+                            }else if(choice == 2){
+                                //console.log("Forwarding");
+                                var time = 10 * Math.random();
+                                littlerab.trigger("forward", time);
+                            }else if(choice == 1){
+                                //console.log("Rotating");
+                                var degree = (Math.random() * 2 - 1) * Math.PI;
+                                littlerab.trigger("rotate", degree);
+                            }else{
+                                // do nothing
+                                //console.log("Idle");
+                            }
+                        }
+                    }else{
+                        if(littlerab.status != "sleeping"){
+                            littlerab.interrupt();
+                            littlerab.trigger("sleep", null);
+                        }              
+                    }
                 }  
                 this.rabbits.loop();
             }
