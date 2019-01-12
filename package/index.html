@@ -220,7 +220,7 @@
             var Validator = THREE.LoaderSupport.Validator;
 
             var viewPara = [4, 4, 4];
-            var cowPara = [10,4,10];
+            var cowPara = [10, 4, 10];
 
             //function Outer( elementToBindTo ) {
             function Outer() {
@@ -569,26 +569,22 @@
 
             };
 
-            Outer.prototype.bind_item = function(){
-                if(ontouch && !prevtouch)
-                {
-                    if(vcontrol.getObject().position.x >= boat_pox - 4 && vcontrol.getObject().position.x <= boat_pox + 4
+            Outer.prototype.bind_item = function () {
+                if (ontouch && !prevtouch) {
+                    if (vcontrol.getObject().position.x >= boat_pox - 4 && vcontrol.getObject().position.x <= boat_pox + 4
                         && vcontrol.getObject().position.y >= 90 && vcontrol.getObject().position.y <= 90
-                        && vcontrol.getObject().position.z >= boat_poz -2 && vcontrol.getObject().position.z <= boat_poz + 2)
-                    {
-                        isbind_boat= !isbind_boat;
+                        && vcontrol.getObject().position.z >= boat_poz - 2 && vcontrol.getObject().position.z <= boat_poz + 2) {
+                        isbind_boat = !isbind_boat;
                     }
-                    if(vcontrol.getObject().position.x >= ship_pox - 4 && vcontrol.getObject().position.x <= ship_pox + 4
+                    if (vcontrol.getObject().position.x >= ship_pox - 4 && vcontrol.getObject().position.x <= ship_pox + 4
                         && vcontrol.getObject().position.y >= ship_poy - 35 && vcontrol.getObject().position.y <= ship_poy - 25
-                        && vcontrol.getObject().position.z >= ship_poz -2 && vcontrol.getObject().position.z <= ship_poz + 2)
-                    {
+                        && vcontrol.getObject().position.z >= ship_poz - 2 && vcontrol.getObject().position.z <= ship_poz + 2) {
                         isbind_ship = !isbind_ship;
                         console.log("ship bind");
                     }
-                    if(vcontrol.getObject().position.x >= this.cows.cows[0].mesh.position.x - 2 && vcontrol.getObject().position.x <= this.cows.cows[0].mesh.position.x + 2
+                    if (vcontrol.getObject().position.x >= this.cows.cows[0].mesh.position.x - 2 && vcontrol.getObject().position.x <= this.cows.cows[0].mesh.position.x + 2
                         && vcontrol.getObject().position.y >= this.cows.cows[0].mesh.position.y - 5 && vcontrol.getObject().position.y <= this.cows.cows[0].mesh.position.y + 15
-                        && vcontrol.getObject().position.z >= this.cows.cows[0].mesh.position.z -2 && vcontrol.getObject().position.z <= this.cows.cows[0].mesh.position.z + 2)
-                    {
+                        && vcontrol.getObject().position.z >= this.cows.cows[0].mesh.position.z - 2 && vcontrol.getObject().position.z <= this.cows.cows[0].mesh.position.z + 2) {
                         isbind_cow = !isbind_cow;
                         console.log("cow bind");
                     }
@@ -596,23 +592,22 @@
                 prevtouch = ontouch;
             };
 
-            Outer.prototype.shot = function(){
+            Outer.prototype.shot = function () {
                 var image = new Image();
                 this.renderer.render(this.scene, this.viewcamera);
                 let imgData = this.renderer.domElement.toDataURL("image/jpeg");//这里可以选择png格式jpeg格式
                 image.src = imgData;
-                var savaFile=function(data,filename)
-                {
-                    var save_link=document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
-                    save_link.href=data;
-                    save_link.download=filename;
-                    var event=document.createEvent('MouseEvents');
-                    event.initMouseEvent('click',true,false,window,0,0,0,0,0,false,false,false,false,0,null);
+                var savaFile = function (data, filename) {
+                    var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+                    save_link.href = data;
+                    save_link.download = filename;
+                    var event = document.createEvent('MouseEvents');
+                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
                     save_link.dispatchEvent(event);
                 };
-                var filename=''+new Date().getSeconds()+'.jpeg';
-                 //我想用当前秒是可以解决重名的问题了 不行你就换成毫秒
-                savaFile(imgData,filename);
+                var filename = '' + new Date().getSeconds() + '.jpeg';
+                //我想用当前秒是可以解决重名的问题了 不行你就换成毫秒
+                savaFile(imgData, filename);
                 console.log(image);
             };
 
@@ -623,8 +618,7 @@
             Outer.prototype.updateCamera = function () {
                 if (vcontrol.isLocked === true) {
                     this.raycaster.ray.origin.copy(vcontrol.getObject().position);
-                    if(isbind_cow)
-                    {
+                    if (isbind_cow) {
                         this.raycaster.ray.origin.y -= 12;
                     }
                     this.raycaster.ray.origin.y += 6;
@@ -637,39 +631,36 @@
                     velocity.x -= velocity.x * 10.0 * delta;
                     velocity.z -= velocity.z * 10.0 * delta;
 
-                    if(!isbind_ship)velocity.y -= 9.8 * 10.0 * delta;
+                    if (!isbind_ship) velocity.y -= 9.8 * 10.0 * delta;
                     else velocity.y -= velocity.y * 10.0 * delta;
-                    
+
                     this.direction.z = Number(moveForward) - Number(moveBackward);
                     this.direction.x = Number(moveLeft) - Number(moveRight);
                     this.direction.normalize(); // this ensures consistent movements in all directions
 
                     this.bind_item(vcontrol.getObject().position.y);
                     console.log();
-                    var speed = (running) ? 250:100;
+                    var speed = (running) ? 250 : 100;
 
                     if (moveForward || moveBackward) velocity.z -= this.direction.z * speed * delta;
                     if (moveLeft || moveRight) velocity.x -= this.direction.x * speed * delta;
 
-                    if(isbind_ship && !ondown)
-                    {
-                            velocity.y = Math.max(0, velocity.y);
-                            canJump = true;
+                    if (isbind_ship && !ondown) {
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
                     }
-                    else if(isbind_ship && ondown)
-                    {
+                    else if (isbind_ship && ondown) {
                         velocity.y = Math.max(-20, velocity.y);
                         canJump = true;
                     }
-                    else if(isbind_cow)
-                    {
+                    else if (isbind_cow) {
                         //不要问我为什么是107.2....调出来的,只能在最开始的平面跳
-                        velocity.y =  (vcontrol.getObject().position.y > 107.2)?velocity.y :  Math.max(0, velocity.y);
+                        velocity.y = (vcontrol.getObject().position.y > 107.2) ? velocity.y : Math.max(0, velocity.y);
                         canJump = true;
                     }
                     else if (onObject == true) {
-                            velocity.y = Math.max(0, velocity.y);
-                            canJump = true;
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
                     }
 
                     vcontrol.getObject().translateX(velocity.x * delta);
@@ -685,8 +676,7 @@
                     ship_poz = this.airship.position.z;
 
 
-                    if(isbind_cow)
-                    {
+                    if (isbind_cow) {
                         this.cows.cows[0].mesh.rotation.y = vcontrol.getObject().rotation.y;
                         this.cows.cows[0].mesh.translateX(velocity.x * delta);
                         this.cows.cows[0].mesh.translateY(velocity.y * delta);
@@ -695,11 +685,10 @@
                     }
 
 
-                    if(isbind_ship)
-                    {
+                    if (isbind_ship) {
                         this.airship.position.x -= ship_pox;
                         this.airship.position.z -= ship_poz;
-                        this.airship.rotation.y  = vcontrol.getObject().rotation.y ;
+                        this.airship.rotation.y = vcontrol.getObject().rotation.y;
                         this.airship.position.x += ship_pox;
                         this.airship.position.z += ship_poz;
                         this.airship.translateX(velocity.x * delta);
@@ -707,15 +696,14 @@
                         this.airship.translateZ(velocity.z * delta);
                         this.airship.position.x -= ship_pox;
                         this.airship.position.z -= ship_poz;
-                        this.airship.rotation.y  = 0 ;
+                        this.airship.rotation.y = 0;
                         this.airship.position.x += ship_pox;
                         this.airship.position.z += ship_poz;
                     }
-                    if(isbind_boat)
-                    {
+                    if (isbind_boat) {
                         this.woodenboat.position.x -= boat_pox;
                         this.woodenboat.position.z -= boat_poz;
-                        this.woodenboat.rotation.y = vcontrol.getObject().rotation.y ;//+ Math.PI * 1.37;
+                        this.woodenboat.rotation.y = vcontrol.getObject().rotation.y;//+ Math.PI * 1.37;
                         this.woodenboat.position.x += boat_pox;
                         this.woodenboat.position.z += boat_poz;
                         this.woodenboat.translateX(velocity.x * delta);
@@ -726,8 +714,7 @@
                         this.woodenboat.position.x += boat_pox;
                         this.woodenboat.position.z += boat_poz;
                     }
-                    if(isbind_cow)
-                    {
+                    if (isbind_cow) {
                         this.viewAABB.update(
                             calculateMyAABB(
                                 [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
@@ -756,8 +743,7 @@
                         vcontrol.getObject().translateX(-velocity.x * delta);
                         vcontrol.getObject().translateY(-velocity.y * delta);
                         vcontrol.getObject().translateZ(-velocity.z * delta);
-                        if(isbind_cow)
-                        {
+                        if (isbind_cow) {
                             this.cows.cows[0].mesh.rotation.y -= Math.PI / 2;
                             this.cows.cows[0].mesh.translateX(-velocity.x * delta);
                             this.cows.cows[0].mesh.translateY(-velocity.y * delta);
@@ -770,9 +756,9 @@
                     }
 
                     if (vcontrol.getObject().position.y < 60) {
-                            velocity.y = 0;
-                            vcontrol.getObject().position.y = 150;
-                            canJump = true;
+                        velocity.y = 0;
+                        vcontrol.getObject().position.y = 150;
+                        canJump = true;
 
                     }
                     this.prevTime = time;
@@ -781,7 +767,7 @@
                         this.house.setDoorOpenFlag(door);
                     }
                 }
-                
+
             };
 
 
@@ -789,7 +775,7 @@
                 if (!this.renderer.autoClear) this.renderer.clear();
                 this.renderer.render(this.scene, this.viewcamera);
                 //产生雨滴动画效果
-                if(!this.loading){
+                if (!this.loading) {
                     var vertices = this.cloud.geometry.vertices;
                     if (raining) {
                         vertices.forEach(function (v) {
@@ -814,8 +800,7 @@
                 //设置实时更新网格的顶点信息
                 this.updateCamera();
 
-                if(onshot && !prevonshot)
-                {
+                if (onshot && !prevonshot) {
                     console.log("shotting");
                     this.shot();
                 }
@@ -872,7 +857,7 @@
                     'assets/img/nnb.jpg',
                     'assets/img/nnb.jpg',
                     'assets/img/nnb.jpg'
-                    
+
                 ]);
                 anCubeMap.format = THREE.RGBFormat;
 
@@ -906,8 +891,8 @@
                         break;
                     case 67:
                         ondown = true;
-                        if(isbind_ship)
-                        velocity.y -= 30;
+                        if (isbind_ship)
+                            velocity.y -= 30;
                         break;
 
                     case 84:
@@ -951,13 +936,13 @@
                         break;
 
                     case 90: // z
-                        if(day){
+                        if (day) {
                             globalCubeShader.uniforms['tCube'].value = anCubeMap;
                             day = false;
                             sunLight.intensity = 0.05;
                             console.log("Night")
                         }
-                        else{
+                        else {
                             globalCubeShader.uniforms['tCube'].value = adCubeMap;
                             day = true;
                             sunLight.intensity = 0.75;
@@ -1062,10 +1047,10 @@
                 // }
             }
 
-            Outer.prototype.cowsControl = function() {
+            Outer.prototype.cowsControl = function () {
                 // 首先是牛牛的碰撞检测
                 // 注意晚上睡觉的接口
-                for (var i = 1; i < this.cows.cows.length; i++){
+                for (var i = 1; i < this.cows.cows.length; i++) {
                     // Shall I leave a cow for TTX ?
                     var cattle = this.cows.cows[i];
                     // Camera has done
@@ -1083,15 +1068,15 @@
                     }
                     // With other cows
                     for (var j = 0; (j < this.cows.cows.length && cattle.AABB.iscollision == false); j++) {
-                        if(j == i)
+                        if (j == i)
                             continue;
                         cattle.AABB.detect(this.cows.cows[j].AABB);
                     }
 
 
                     // Done then
-                    if(day){
-                        if( cattle.AABB.iscollision && cattle.status != "jumping"){
+                    if (day) {
+                        if (cattle.AABB.iscollision && cattle.status != "jumping") {
                             // Moving all states now
                             //if (cattle.status != "jumping")
                             cattle.interrupt();
@@ -1108,29 +1093,29 @@
                         else if (cattle.buffer.count() && cattle.status != "jumping") {
                             // Delete all moving states now
                             cattle.interrupt();
-                            var choice = Math.floor(Math.random()*5);
-                            
-                            if(choice == 4){
+                            var choice = Math.floor(Math.random() * 5);
+
+                            if (choice == 4) {
                                 //console.log("Noding");
                                 cattle.trigger("nod", null);
-                            }else if(choice == 3){
+                            } else if (choice == 3) {
                                 //console.log("Jumping");
                                 cattle.trigger("jump", null);
-                            }else if(choice == 2){
+                            } else if (choice == 2) {
                                 //console.log("Forwarding");
                                 var time = 10 * Math.random();
                                 cattle.trigger("forward", time);
-                            }else if(choice == 1){
+                            } else if (choice == 1) {
                                 //console.log("Rotating");
                                 var degree = (Math.random() * 2 - 1) * Math.PI;
                                 cattle.trigger("rotate", degree);
-                            }else{
+                            } else {
                                 // do nothing
                                 //console.log("Idle");
                             }
                         }
-                    }else{
-                        if(cattle.status != "sleeping"){
+                    } else {
+                        if (cattle.status != "sleeping") {
                             cattle.interrupt();
                             cattle.trigger("sleep", null);
                         }
@@ -1141,7 +1126,7 @@
 
             }
 
-            Outer.prototype.rabbitControl = function() {
+            Outer.prototype.rabbitControl = function () {
                 for (var i = 0; i < this.rabbits.rabbits.length; i++) {
                     var littlerab = this.rabbits.rabbits[i];
                     // Camera has done
@@ -1158,13 +1143,13 @@
                     }
                     // With rabbits
                     for (var j = 0; (j < this.rabbits.rabbits.length && littlerab.AABB.iscollision == false); j++) {
-                        if(i == j)
+                        if (i == j)
                             continue;
                         littlerab.AABB.detect(this.rabbits.rabbits[j].AABB);
                     }
                     // Done then
-                    if(day){
-                        if( littlerab.AABB.iscollision){
+                    if (day) {
+                        if (littlerab.AABB.iscollision) {
                             // Moving all states now
                             //if (cattle.status != "jumping")
                             littlerab.interrupt();
@@ -1181,31 +1166,31 @@
                         else if (littlerab.buffer.count()) {
                             // Delete all moving states now
                             littlerab.interrupt();
-                            var choice = Math.floor(Math.random()*4);
-                            
-                            if(choice == 3){
+                            var choice = Math.floor(Math.random() * 4);
+
+                            if (choice == 3) {
                                 //console.log("Noding");
                                 littlerab.trigger("nod", null);
-                            }else if(choice == 2){
+                            } else if (choice == 2) {
                                 //console.log("Forwarding");
                                 var time = 10 * Math.random();
                                 littlerab.trigger("forward", time);
-                            }else if(choice == 1){
+                            } else if (choice == 1) {
                                 //console.log("Rotating");
                                 var degree = (Math.random() * 2 - 1) * Math.PI;
                                 littlerab.trigger("rotate", degree);
-                            }else{
+                            } else {
                                 // do nothing
                                 //console.log("Idle");
                             }
                         }
-                    }else{
-                        if(littlerab.status != "sleeping"){
+                    } else {
+                        if (littlerab.status != "sleeping") {
                             littlerab.interrupt();
                             littlerab.trigger("sleep", null);
-                        }              
+                        }
                     }
-                }  
+                }
                 this.rabbits.loop();
             }
 

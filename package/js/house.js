@@ -58,7 +58,6 @@ var House = function () {
             }
             else {
                 isGotoOpen = false;
-                alert("-=-=-=-=--=-=-==-=-=-=");
                 t1 = window.setInterval(doorRotating, 50);
             }
         }
