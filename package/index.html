@@ -571,7 +571,7 @@
 
                         // scope.rabbits.rabbits[0].trigger("nod", null);
 
-                        // scope.wolfs.wolfs[0].trigger("nod", null);
+                        scope.wolfs.wolfs[0].trigger("sleep", null);
 
                         // scope.hedgehogs.hedgehogs[0].nod();
 
@@ -819,7 +819,7 @@
                     }
                     else {
                         vertices.forEach(function (v) {
-                            v.y = 5000;
+                            v.y = 6000;
                             //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
                         });
                     }
@@ -972,6 +972,7 @@
                             moonLight.visible = true;
                             towerLight.visible = true;
                             towerbulb.visible = true;
+                            this.wolfs.wolfs[0].trigger("sleep", null);
                         }
                         else {
                             globalCubeShader.uniforms['tCube'].value = adCubeMap;
@@ -980,6 +981,7 @@
                             moonLight.visible = false;
                             towerLight.visible = false;
                             towerbulb.visible = false;
+                            this.wolfs.wolfs[0].trigger("nod", null);
                         }
                         break;
 
