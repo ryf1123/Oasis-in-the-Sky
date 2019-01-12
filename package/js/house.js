@@ -131,7 +131,7 @@ var House = function () {
         light4 = light.clone();
         light4.position.x = -35;
         light4.position.z = 0;
-        light4.visible = false;
+        light4.visible = false
         // scene.add(light4);
         // mesh.add(light4);
 
@@ -300,6 +300,21 @@ var House = function () {
         videoBox.position.set(-55.15, 28.22, -2);
         videoBox.visible = false;
         mesh.add(videoBox);
+
+        // AR picture
+        var arBox;
+        var arBoxMaterial = [
+            createMaterial('images/AR.png'), // right
+            createMaterial('images/AR.png'), // left
+            createMaterial('images/AR.png'), // top
+            createMaterial('images/AR.png'), // bottom
+            createMaterial('images/AR.png'), // back
+            createMaterial('images/AR.png')  // front
+        ];
+        arBox = new THREE.Mesh( new THREE.BoxGeometry(5, 5, 5), new THREE.MeshFaceMaterial(arBoxMaterial));
+        arBox.position.set(-25.15, 38.22, -2);
+
+        mesh.add(arBox);
 
         //drawing shower in the toilet
         var shower = addShower();

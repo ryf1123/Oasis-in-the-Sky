@@ -114,7 +114,9 @@
 </head>
 
 <body>
-    <embed src="music/bgm2.mp3" hidden="true" autostart="true" loop="true">
+    <embed id="mybgm" src="music/bgm2.mp3" hidden="true" autostart="true" loop="true">
+   <!--  <audio id="mybgm" style="opacity:0" preload="auto" controls loop hidden="true">
+    </audio>  -->
     <!-- <div id="glFullscreen">
     <canvas id="example"></canvas>
 </div>
@@ -237,6 +239,7 @@
 
             //function Outer( elementToBindTo ) {
             function Outer() {
+
                 this.renderer = null;
                 // this.canvas = elementToBindTo;
                 this.aspectRatio = 1;
@@ -605,7 +608,7 @@
             Outer.prototype.bind_item = function () {
                 if (ontouch && !prevtouch) {
                     if (vcontrol.getObject().position.x >= boat_pox - 4 && vcontrol.getObject().position.x <= boat_pox + 4
-                        && vcontrol.getObject().position.y >= 90 && vcontrol.getObject().position.y <= 90
+                        && vcontrol.getObject().position.y >= 89 && vcontrol.getObject().position.y <= 94
                         && vcontrol.getObject().position.z >= boat_poz - 2 && vcontrol.getObject().position.z <= boat_poz + 2) {
                         isbind_boat = !isbind_boat;
                     }
@@ -1245,6 +1248,7 @@
 
         var app = new Outer();
 
+
         var resizeWindow = function () {
             app.resizeDisplayGL();
         };
@@ -1266,6 +1270,10 @@
 
         };
 
+        var target = document.getElementById("mybgm");
+
+        console.log(target);
+
         function init(event) {
             app.initGL();
             app.renderer.setPixelRatio(window.devicePixelRatio);
@@ -1276,6 +1284,7 @@
             app.initContent();
             render();
         }
+        
 
 
         window.addEventListener('resize', resizeWindow, false);
