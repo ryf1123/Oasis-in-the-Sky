@@ -145,7 +145,7 @@
     <script src="js/House.js"></script>
     <script src="js/myAnti_Jitter.js"></script>
     <!-- <script src="js/dat.gui.min.js"></script> -->
-    <video id="video" autoplay vcontrol>
+    <video id="houseTV" controls hidden>
         <source src="video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
     </video>
     <!--
@@ -164,6 +164,8 @@
     <script>
 
         'use strict';
+
+        var tv_ctrl = document.getElementById('houseTV');
 
         var day = true;
 
@@ -950,9 +952,17 @@
                         }
                         break;
 
-                    case 49:    //1
+                    case 49:    // 1
                         raining = ~raining;
                         break;
+
+                    case 86:    // V
+                        if(tv_ctrl.paused){
+                            tv_ctrl.play();
+                        }else{
+                            tv_ctrl.pause();
+                        }
+
                 }
 
             };

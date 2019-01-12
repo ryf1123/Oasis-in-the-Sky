@@ -389,10 +389,10 @@ var House = function () {
         parameters =
             {
                 roof: true,//for roof
-                kLight: true,//for pointlight
-                bLight: true,//for pointlight
-                tLight: true,//for pointlight
-                lLight: true,//for pointlight
+                kLight: false,//for pointlight
+                bLight: false,//for pointlight
+                tLight: false,//for pointlight
+                lLight: false,//for pointlight
                 doorOp: true,
                 tvOp: false
             };
@@ -1039,7 +1039,7 @@ var House = function () {
 
     function draVideoBox() {
         var videoBox = new THREE.Object3D();
-        var texture = new THREE.VideoTexture(video);
+        var texture = new THREE.VideoTexture(houseTV);
         texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.minFilter = THREE.LinearFilter;
         material = new THREE.MeshBasicMaterial({ map: texture });
