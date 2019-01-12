@@ -109,28 +109,31 @@ var House = function () {
         light.position.y = 40;
         light.add(new THREE.Mesh(bulb, new THREE.MeshBasicMaterial({ color: 0xffff00 })));
         // scene.add(light);
-        mesh.add(light);
-        light.visible = true;
+        // mesh.add(light);
+        light.visible = false;
         // scene.add(new THREE.PointLightHelper(light, 1));
         mesh.add(new THREE.PointLightHelper(light, 1));
 
         light2 = light.clone();
         light2.position.x = 35;
         light2.position.z = -20;
+        light2.visible = false;
         // scene.add(light2);
-        mesh.add(light2);
+        // mesh.add(light2);
 
         light3 = light.clone();
         light3.position.x = 35;
         light3.position.z = 40;
+        light3.visible = false;
         // scene.add(light3);
-        mesh.add(light3);
+        // mesh.add(light3);
 
         light4 = light.clone();
         light4.position.x = -35;
         light4.position.z = 0;
+        light4.visible = false;
         // scene.add(light4);
-        mesh.add(light4);
+        // mesh.add(light4);
 
         //creating spotlight to cast shadow inside the house
         spotLight = new THREE.SpotLight(0xfffff, 0.1, 1, 500);

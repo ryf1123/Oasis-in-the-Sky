@@ -52,11 +52,19 @@ var Forest = function(){
 
 
 	  Tree1.prototype.fall = function(){
-	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var foliageGeom = new THREE.CylinderGeometry( 1.2, 1.2, 0.1, 6);//new THREE.DodecahedronGeometry(1.2, 0);
+	  	foliageGeom.vertices[0].x += 1;
+	  	foliageGeom.vertices[6].x += 1;
+
 	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
 	  	tempLeaf.position.y = this.leaf.position.y;
 	  	tempLeaf.position.x = this.leaf.position.x + 20 * (Math.random() - 0.5);// * this.mesh.scale.x;
 	  	tempLeaf.position.z = this.leaf.position.z + 20 * (Math.random() - 0.5);// * this.mesh.scale.z;
+
+	  	tempLeaf.rotation.x = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.y = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.z = (Math.random() * 2 - 1) * Math.PI / 2;
+
 	  	// x and z need randomly allocate
 	  	this.mesh.add(tempLeaf);
 	  	var fallingTime = defaultFalling + (Math.random()-0.5) * 2;
@@ -100,8 +108,14 @@ var Forest = function(){
 	  this.mesh.add(this.leaf);
 
 	  Tree2.prototype.fall = function(){
-	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var foliageGeom = new THREE.CylinderGeometry( 1.2, 1.2, 0.1, 6);//new THREE.DodecahedronGeometry(1.2, 0);
+	  	foliageGeom.vertices[0].x += 1;
+	  	foliageGeom.vertices[6].x += 1;
 	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	tempLeaf.rotation.x = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.y = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.z = (Math.random() * 2 - 1) * Math.PI / 2;
+
 	  	tempLeaf.position.y = this.leaf.position.y;
 	  	tempLeaf.position.x = this.leaf.position.x + 20 * (Math.random() - 0.5); // * this.mesh.scale.x;
 	  	tempLeaf.position.z = this.leaf.position.z + 20 * (Math.random() - 0.5); // * this.mesh.scale.z;
@@ -190,8 +204,13 @@ var Forest = function(){
 	  this.trunk3.add(this.leaf3);
 
 	  Tree3.prototype.fall = function(){
-	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var foliageGeom = new THREE.CylinderGeometry( 1.2, 1.2, 0.1, 6);//new THREE.DodecahedronGeometry(1.2, 0);
+	  	foliageGeom.vertices[0].x += 1;
+	  	foliageGeom.vertices[6].x += 1;
 	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	tempLeaf.rotation.x = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.y = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.z = (Math.random() * 2 - 1) * Math.PI / 2;
 
 	  	var choice = Math.random();
 	  	if(choice > 2.0/3){
@@ -292,8 +311,13 @@ var Forest = function(){
 	  this.trunk3.add(this.leaf3);
 
 	  Tree4.prototype.fall = function(){
-	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var foliageGeom = new THREE.CylinderGeometry( 1.2, 1.2, 0.1, 6);//new THREE.DodecahedronGeometry(1.2, 0);
+	  	foliageGeom.vertices[0].x += 1;
+	  	foliageGeom.vertices[6].x += 1;
 	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	tempLeaf.rotation.x = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.y = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.z = (Math.random() * 2 - 1) * Math.PI / 2;
 
 	  	var choice = Math.random();
 	  	if(choice > 1.0/2){
@@ -351,8 +375,15 @@ var Forest = function(){
 	  this.mesh.add(this.leaf3);
 
 	  Tree5.prototype.fall = function(){
-	  	var foliageGeom = new THREE.DodecahedronGeometry(1.2, 0);
+	  	var foliageGeom = new THREE.CylinderGeometry( 1.2, 1.2, 0.1, 6);//new THREE.DodecahedronGeometry(1.2, 0);
+	  	foliageGeom.vertices[0].x += 1;
+	  	foliageGeom.vertices[6].x += 1;
 	  	var tempLeaf = new THREE.Mesh(foliageGeom, leafMat);
+	  	
+	  	tempLeaf.rotation.x = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.y = (Math.random() * 2 - 1) * Math.PI / 2;
+	  	tempLeaf.rotation.z = (Math.random() * 2 - 1) * Math.PI / 2;
+
 	  	tempLeaf.position.y = this.leaf1.position.y;
 	  	tempLeaf.position.x = this.leaf1.position.x + 20 * (Math.random() - 0.5); // * this.mesh.scale.x;
 	  	tempLeaf.position.z = this.leaf1.position.z + 20 * (Math.random() - 0.5); // * this.mesh.scale.z;
@@ -379,7 +410,7 @@ var Forest = function(){
         [4, [225, 103,  15], [scale_base, scale_base, scale_base],  0],
         [1, [120, 103, 100], [scale_base, scale_base, scale_base],  0],
         [1, [245, 103, 100], [scale_base, scale_base, scale_base],  0],
-        [0, [120, 103, 160], [scale_base, scale_base, scale_base],  0],
+        //[0, [120, 103, 160], [scale_base, scale_base, scale_base],  0],
         [2, [125, 103, 165], [scale_base, scale_base, scale_base],  Math.PI/2],
         [0, [120, 103, 170], [scale_base, scale_base, scale_base],  0],
         [1, [100, 103, 150], [scale_base, scale_base, scale_base],  0],
@@ -393,7 +424,7 @@ var Forest = function(){
         [0, [128.372556912627,102,174.17121397712748], [0.3150715825392991,0.2943707844501916,0.30870718086686666], Math.PI*0.9811299121390337],
 		//[0, [137.1404289981405,102,166.51174923675146], [0.27999268534696964,0.2893175789117478,0.2943738226591875], Math.PI*0.6284444897796502],
 		[2, [150.54091753439107,102,166.7294606362185], [0.2811553919910569,0.2751245970642985,0.2837321680579694], Math.PI*0.21359775811894377],
-		[3, [158.34528307752768,102,160.22372138206586], [0.30824343809655896,0.3144306004850239,0.2950451235246791], Math.PI*0.2975578105065416],
+		//[3, [158.34528307752768,102,160.22372138206586], [0.30824343809655896,0.3144306004850239,0.2950451235246791], Math.PI*0.2975578105065416],
 		[3, [158.15834540408667,102,173.70269125158546], [0.27986073476524814,0.29889193288268723,0.2887638393981142], Math.PI*0.28079228378513443],
 		[3, [158.22474438472625,102,188.48475574101084], [0.30340210787620825,0.3214025804383226,0.2896417152475036], Math.PI*0.22978848499399052],
 		[0, [171.97410986604393,102,160.17376903849814], [0.3228807494155965,0.30748369202114767,0.297686404405278], Math.PI*0.8171869766311929],
@@ -449,7 +480,7 @@ var Forest = function(){
 		[0, [125, 102, 150],  [scale_base, scale_base, scale_base],  -Math.PI/5],
 		[4, [125, 102, 140],  [scale_base, scale_base, scale_base],  -Math.PI/5],
 
-		[0, [152, 102, 140],  [scale_base, scale_base, scale_base],  -Math.PI/5],
+		//[0, [152, 102, 140],  [scale_base, scale_base, scale_base],  -Math.PI/5],
 		[1, [134, 102, 135],  [scale_base, scale_base, scale_base],  -Math.PI/5],
 		[2, [144, 102, 120],  [scale_base, scale_base, scale_base],  -Math.PI/5],
 		[3, [140, 102, 133],  [scale_base, scale_base, scale_base],  -Math.PI/5],
@@ -477,10 +508,10 @@ var Forest = function(){
 		[4, [152.56772528590773,102,129.80264555869616], [0.2786950131091405,0.29456320149445536,0.3197107558915784], Math.PI*0.22168928947272448],
 		
 		//
-		[4, [165, 102, 140],  [scale_base, scale_base, scale_base],  -Math.PI/5],
+		//[4, [165, 102, 140],  [scale_base, scale_base, scale_base],  -Math.PI/5],
 		[4, [165.31566162179288,102,119.73278589444041], [0.3084222807217114,0.3149074870539438,0.2839701542463962], Math.PI*0.4016601908427353],
-		[1, [171.0592028473249,102,138.36949729992804], [0.2766289285972138,0.2768427216574555,0.30041459787389396], Math.PI*0.395952259323337],
-		[2, [176.69411234665807,102,132.41590973361258], [0.31230804968988124,0.3066691727462035,0.29357271524131373], Math.PI*0.12500950999514682],
+		//[1, [171.0592028473249,102,138.36949729992804], [0.2766289285972138,0.2768427216574555,0.30041459787389396], Math.PI*0.395952259323337],
+		//[2, [176.69411234665807,102,132.41590973361258], [0.31230804968988124,0.3066691727462035,0.29357271524131373], Math.PI*0.12500950999514682],
 		[1, [182.73161383833562,102,137.66687440276803], [0.31936963096064486,0.31346843610678954,0.29746274640537396], Math.PI*0.203519096671962],
 		[0, [188.81903620879436,102,120.39283371673287], [0.30280018820975696,0.3131148545965609,0.29498519852703753], Math.PI*0.5381400637367035],
 		[4, [189.21716556496204,102,132.4507044765519], [0.30535216884741295,0.30276040907879403,0.31456593088270157], Math.PI*0.9443311329322954],

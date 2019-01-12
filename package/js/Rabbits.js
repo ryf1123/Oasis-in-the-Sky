@@ -418,7 +418,8 @@ var Rabbits = function(){
 				this.status = "nod";
 				break;
 			case "sleep":
-				this.status = "sleep";
+				if(this.status != "sleeping")
+					this.status = "sleep";
 				break;
 			case "forward":
 				this.status = "forward";
