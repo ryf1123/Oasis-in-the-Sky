@@ -4,6 +4,8 @@
 
 Hello everyone. Welcome to our team for the CG course and hopefully every one of us can benefit and get good grade.
 
+Thanks again for the effort of all of you ~ :clap::clap::clap:
+
 ---
 
 ## Important things :smile:
