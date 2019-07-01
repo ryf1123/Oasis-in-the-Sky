@@ -34,7 +34,7 @@ Wait a little while until the backgroud become blue. Click anywhere to start the
 
 Then, you can play this game in the first person perspective to get immersive experience. Use W-A-S-D-SPACE to control steps, use mouse to move your perspective. There are more things needed to explore. (I won't tell you that you can actually drive the fire ballon🎈 to get a bird's angle.)
 
-#### If I cannot run it...
+#### If you cannot run it...
 
 Thanks for [马麟](https://github.com/form2l1n) who makes a recording of this game. It is available at `/Recording.mp4`
 
