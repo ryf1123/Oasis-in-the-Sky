@@ -10,7 +10,7 @@
 - [罗天翔](https://github.com/TTXbai)
 - [任宇凡](https://github.com/ryf1123/)
 
-#### Disclaimer: CG models in this project are taken from the Internet, credits belong to the original authors
+#### Disclaimer: some of the CG models in this project are taken from the Internet, credits belong to the original authors
 
 #### Why "Oasis" ?
 
@@ -32,7 +32,7 @@ Wait a little while until the backgroud become blue. Click anywhere to start the
 
 ![image-20190701163753275](assets/image-20190701163753275.png)
 
-Then, you can play this game in the first person perspective to get immersive experience. Use W-A-S-D-SPACE to control steps, use mouse to move your perspective. There are more things you can explore. (I won't tell you that you can actually drive the fire ballon🎈 to get a bird's angle.)
+Then, you can play this game in the first person perspective to get immersive experience. Use W-A-S-D-SPACE to control steps, use mouse to move your perspective. There are more things you can explore. (I won't tell you that you can actually drive the fire ballon🎈 to get a bird's angle. if you press `E` in it)
 
 #### If you cannot run it...
 
