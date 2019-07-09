@@ -40,6 +40,6 @@ Thanks for [马麟](https://github.com/form2l1n) who makes a recording of this g
 
 Then you can watch this video recording.
 
-
+> Thank you for your interest in this project and have fun. We are always open any discussion :)
 
 
