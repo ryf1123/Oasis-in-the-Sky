@@ -18,7 +18,7 @@ Like Walden Pond cherished by Henry David Thoreau's, everyone hopes to have a oa
 
 ![img](assets/65_cover_m-20190701160901766.jpg)
 
-This is a game of **Oasis in the Sky**. With WebGL and JavaScript we build an oasis for you, one far from the real world in the sky! (actually in the cyberspace)
+This is a game **Oasis in the Sky**. With WebGL and JavaScript we build an oasis for you, one far from the real world in the sky! (actually in the cyberspace)
 
 There's no particular goal of this game. I mean, you will never lose or win(, unless you fall from the island or encounter some bugs). But during the journey of playing this game, what we want to tell you is,
 
