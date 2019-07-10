@@ -5,7 +5,7 @@
 #### Contributors: (in no particular order)
 
 - [马麟](https://github.com/form2l1n)
-- [郝佳辉](https://github.com/NonoHh)
+- [郝家辉](https://github.com/NonoHh)
 - 徐金焱
 - [罗天翔](https://github.com/TTXbai)
 - [任宇凡](https://github.com/ryf1123/)
