@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Low Poly Islands</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0 0 0 0;
+            padding: 0 0 0 0;
+            border: none;
+            cursor: default;
+        }
+
+        #info {
+            color: #fff;
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display: block;
+        }
+
+        #info a {
+            color: #f00;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer
+        }
+
+        #glFullscreen {
+            width: 80%;
+            height: 80%;
+            min-width: 640px;
+            min-height: 360px;
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        #example {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: #000000;
+        }
+
+        #feedback {
+            color: darkorange;
+        }
+
+        #dat {
+            user-select: none;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-Index: 200;
+        }
+
+        #blocker {
+
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+
+            background-color: rgba(0, 0, 0, 0.5);
+
+        }
+
+        #instructions {
+
+            width: 100%;
+            height: 100%;
+
+            display: -webkit-box;
+            display: -moz-box;
+            display: box;
+
+            -webkit-box-orient: horizontal;
+            -moz-box-orient: horizontal;
+            box-orient: horizontal;
+
+            -webkit-box-pack: center;
+            -moz-box-pack: center;
+            box-pack: center;
+
+            -webkit-box-align: center;
+            -moz-box-align: center;
+            box-align: center;
+
+            color: #ffffff;
+            text-align: center;
+
+            cursor: pointer;
+
+        }
+
+        #video {
+            position: fixed;
+            width: 0%;
+            height: 0%;
+            left: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <embed id="mybgm" src="music/bgm2.mp3" hidden="true" autostart="true" loop="true">
+   <!--  <audio id="mybgm" style="opacity:0" preload="auto" controls loop hidden="true">
+    </audio>  -->
+    <!-- <div id="glFullscreen">
+    <canvas id="example"></canvas>
+</div>
+<div id="dat">
+
+</div> -->
+
+    <script src="src/three.js"></script>
+    <script src="src/PointerLockControls.js"></script>
+    <script src="src/Detector.js"></script>
+    <script src="src/TrackballControls.js"></script>
+    <script src="src/MTLLoader.js"></script>
+    <script src="src/OBJLoader.js"></script>
+    <script src="src/dat.gui.min.js"></script>
+    <script src="src/LoaderSupport.js"></script>
+    <script src="src/OBJLoader2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
+    <script src="js/myAABB.js"></script>
+    <script src="js/Forest.js"></script>
+    <script src="js/Decoration.js"></script>
+    <script src="js/Cows.js"></script>
+    <script src="js/Rabbits.js"></script>
+    <script src="js/Wolfs.js"></script>
+    <script src="js/Hedgehogs.js"></script>
+    <script src="js/Water.js"></script>
+    <script src="js/Sky.js"></script>
+    <script src="js/Lensflare.js"></script>
+    <script src="js/House.js"></script>
+    <script src="js/Clouds.js"></script>
+    <script src="js/myAnti_Jitter.js"></script>
+    <!-- <script src="js/dat.gui.min.js"></script> -->
+    <video id="houseTV" controls hidden loop>
+        <source src="video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+    </video>
+    <!--
+<script src="js/Sky.js"></script>
+-->
+    <div id="blocker">
+
+        <div id="instructions">
+            <span style="font-size:75px">Welcome to Dreamy Island</span>
+            <br />
+            <span style="font-size:30px">Click to play</span>
+            <br />
+            (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+        </div>
+
+    </div>
+
+    <script>
+
+        'use strict';
+
+        var tv_ctrl = document.getElementById('houseTV');
+
+        var day = true;
+
+        var isbind_boat = false;
+        var isbind_ship = false;
+        var isbind_cow = false;
+
+        var ondown = false;
+
+        var ontouch = false;
+        var prevtouch = false;
+        var boat_pox;
+        var boat_poz;
+
+        var ship_pox;
+        var ship_poy;
+        var ship_poz;
+
+
+        var onshot = false;
+        var prevonshot = false;
+
+        var vcontrol;
+
+        var moveForward = false;
+
+        var moveBackward = false;
+
+        var moveLeft = false;
+
+        var moveRight = false;
+
+        var canJump = false;
+
+        var running = false;
+
+        var raining = false;
+
+        var velocity = new THREE.Vector3();
+
+        var door = true;
+
+        var doorOk = false;
+
+        var globalCubeShader;
+
+        var adCubeMap;
+        var anCubeMap;
+
+        var sunLight;
+
+        var moonLight;
+
+        var towerLight;
+
+        var towerbulb;
+
+        // var lensflare;
+
+        var Outer = (function () {
+
+            var Validator = THREE.LoaderSupport.Validator;
+
+            var viewPara = [4, 4, 4];
+            var cowPara = [10, 4, 10];
+
+            //function Outer( elementToBindTo ) {
+            function Outer() {
+
+                this.renderer = null;
+                // this.canvas = elementToBindTo;
+                this.aspectRatio = 1;
+                // this.recalcAspectRatio();
+
+                this.scene = null;
+
+                this.viewcamera = null;
+
+                // Flags
+                this.loading = true;
+
+                // Those Assets
+                this.objectSet = new THREE.Group();
+                // House
+                this.house = null;
+                // Animals
+                this.forest = null;
+                this.cows = null;
+                this.rabbits = null;
+                this.wolfs = null;
+                this.hedgehogs = null;
+                this.barn = null;
+                // Others
+                this.ballon = null;
+                this.woodenboat = null;
+                this.airship = null;
+                this.lake = null;
+                this.cloud = null;
+                this.clouds = null;
+
+                this.timeDay = 0;
+
+                // raycaster
+                this.raycaster = null;
+
+                // more
+                this.prevTime = performance.now();
+
+                this.direction = new THREE.Vector3();
+                this.vertex = new THREE.Vector3();
+
+                this.viewAABB = null;
+                this.barnAABB = null;
+
+                // day and night
+                this.Skybox = null;
+                // this.anSkybox = null;
+            }
+
+            Outer.prototype.initGL = function () {
+
+                this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
+
+                this.renderer = new THREE.WebGLRenderer({
+                    // canvas: this.canvas,
+                    antialias: true,
+                    autoClear: true,
+                    alpha: true
+                });
+                this.renderer.setClearColor(0x050505);
+
+
+                this.scene = new THREE.Scene();
+
+                // Modify here
+                // this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+
+                // this.scene.background = new THREE.Color( 0xffffff );
+
+                // var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+                // light.position.set(0.5, 1, 0.75);
+                // this.scene.add(light);
+
+                this.viewcamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 3000);
+                vcontrol = new THREE.PointerLockControls(this.viewcamera);
+
+                var blocker = document.getElementById('blocker');
+                var instructions = document.getElementById('instructions');
+
+                instructions.addEventListener('click', function () {
+
+                    vcontrol.lock();
+
+                }, false);
+
+                vcontrol.addEventListener('lock', function () {
+
+                    instructions.style.display = 'none';
+                    blocker.style.display = 'none';
+
+                });
+
+                vcontrol.addEventListener('unlock', function () {
+
+                    blocker.style.display = 'block';
+                    instructions.style.display = '';
+
+                });
+
+                vcontrol.getObject().position.x = 145;
+                vcontrol.getObject().position.y = 120;
+                vcontrol.getObject().position.z = 175;
+
+                this.viewAABB = new myAABB(
+                    calculateMyAABB(
+                        [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                        [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                        viewPara[0] * vcontrol.getObject().scale.x,
+                        viewPara[1] * vcontrol.getObject().scale.y,
+                        viewPara[2] * vcontrol.getObject().scale.z
+                    )
+                );
+
+                this.scene.add(vcontrol.getObject());
+
+                // handle !
+
+                this.resetCamera();
+                // keyboard
+                document.addEventListener('keydown', this.onKeyDown, false);
+                document.addEventListener('keyup', this.onKeyUp, false);
+
+                //var ambientLight = new THREE.AmbientLight( 0x404040, 0.0 );
+                //sunLight = new THREE.PointLight(0xffffff, 0.75);
+                //sunLight.position.set(1500, 1500, 0);
+                var directionalLight1 = new THREE.DirectionalLight(0x808080, 1);
+                var directionalLight2 = new THREE.DirectionalLight(0x808080, 0.5);
+                var directionalLight3 = new THREE.DirectionalLight(0x808080, 0.5);
+                // 0xC0C090
+                directionalLight1.position.set(-500, 500, 500);
+                directionalLight2.position.set(500, 500, -500);
+                directionalLight3.position.set(0, -1000, 0);
+
+                this.scene.add(directionalLight1);
+                this.scene.add(directionalLight2);
+                this.scene.add(directionalLight3);
+                //this.scene.add(sunLight);
+
+                this.sunZoom();
+
+            };
+
+            // Some misc
+            Outer.prototype.ballonUp = function () {
+                //function ballonUp() {
+                var _this = this;
+                TweenMax.to(this.ballon.position, 6, { y: 200, ease: Power1.easeInOut, onComplete: function () { _this.ballonDown() } });
+            }
+
+            Outer.prototype.ballonDown = function () {
+                //function ballonDown() {
+                var _this = this;
+                TweenMax.to(this.ballon.position, 6, { y: 0, ease: Power1.easeInOut, onComplete: function () { _this.ballonUp() } });
+            }
+
+
+            Outer.prototype.addrain = function (size, transparent, opacity, vertexColors, sizeAttenuation, color) {
+                var texture = new THREE.TextureLoader().load("./images/rain.png");
+                //存放粒子数据的网格
+                var geom = new THREE.Geometry();
+                //样式化粒子的THREE.PointCloudMaterial材质
+                var material = new THREE.PointsMaterial({
+                    size: size,
+                    transparent: transparent,
+                    opacity: opacity,
+                    vertexColors: vertexColors,
+                    sizeAttenuation: sizeAttenuation,
+                    color: color,
+                    map: texture,
+                    depthTest: false  //设置解决透明度有问题的情况
+                });
+                var range = 500;
+                for (var i = 0; i < 15000; i++) {
+                    //添加顶点的坐标
+                    var particle = new THREE.Vector3(Math.random() * range - range / 2, Math.random() * range - range / 2, Math.random() * range - range / 2);
+                    particle.velocityY = 0.1 + Math.random() / 5;
+                    particle.velocityX = (Math.random() - 0.5) / 3;
+                    geom.vertices.push(particle);
+                    var color = new THREE.Color(0xffffff);
+                    //.setHSL ( h, s, l ) h — 色调值在0.0和1.0之间 s — 饱和值在0.0和1.0之间 l — 亮度值在0.0和1.0之间。 使用HSL设置颜色。
+                    //随机当前每个粒子的亮度
+                    //color.setHSL(color.getHSL().h, color.getHSL().s, Math.random() * color.getHSL().l);
+                    geom.colors.push(color);
+                }
+
+                //生成模型，添加到场景当中
+                this.cloud = new THREE.Points(geom, material);
+                this.cloud.verticesNeedUpdate = true;
+                this.cloud.position.y = 150;
+                // this.scene.add(this.cloud);
+            }
+
+
+            Outer.prototype.sunZoom = function () {
+                // var dirLight = new THREE.DirectionalLight(0xffffff, 0.05);
+                // dirLight.position.set(5000, 5000, 0).normalize();
+                // dirLight.color.setHSL(0.1, 0.7, 0.5);
+                // dirLight.castShadow = true;
+                var _ss = this.scene;
+                // moon = new THREE.Mesh( new THREE.SphereGeometry(200, 80, 80), new THREE.MeshBasicMaterial({ color: 0xddff00 }));
+                // moon.visible = false
+                // _ss.add( moon);
+                // lensflares
+                moonLight = new THREE.PointLight(0x808080, 0.75);
+                moonLight.castShadow = true;
+                moonLight.position.set(-500, 800, -800);
+                moonLight.visible = false;
+                _ss.add(moonLight);
+
+                towerLight = new THREE.PointLight(0xffbc40, 0.75, 250);
+                towerLight.castShadow = true;
+                towerLight.position.set(-67.2, 122, -48.4);
+                var towerGeom = new THREE.MeshBasicMaterial({ 
+                    color: 0xffbc40,
+                    opacity: 0.4
+                });
+                towerbulb = new THREE.Mesh( new THREE.SphereGeometry(2.2, 30, 30), towerGeom);
+                towerbulb.position.set(-67.2, 122, -48.4);
+                towerLight.visible = false;
+                towerbulb.visible = false;
+                _ss.add(towerbulb);
+                _ss.add(towerLight);
+
+                var textureLoader = new THREE.TextureLoader();
+                var textureFlare0 = textureLoader.load('assets/lensflare/lensflare0.png');
+                var textureFlare3 = textureLoader.load('assets/lensflare/lensflare3.png');
+                addLight(0, 0.8, 0.5, 500, 800, 800);
+                //addLight(0.08, 0.8, 0.5, 5000, 1000, -1000);
+                //addLight(0.995, 0.5, 0.9, 5000, 1000, -1000);
+                function addLight(h, s, l, x, y, z) {
+                    sunLight = new THREE.PointLight(0x808080, 1.75);
+                    sunLight.castShadow = true;
+                    // sunLight.color.setHSL(h, s, l);
+                    sunLight.position.set(x, y, z);
+                    // sunLight.add(new THREE.Mesh(moon, new THREE.MeshBasicMaterial({ color: 0xddff00 })));
+                    _ss.add(sunLight);
+                    var lensflare = new THREE.Lensflare();
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare0, 400, 0, sunLight.color));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 120, 0.6));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 140, 0.7));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 240, 0.9));
+                    lensflare.addElement(new THREE.LensflareElement(textureFlare3, 140, 1));
+                    sunLight.add(lensflare);
+                }
+            }
+
+            Outer.prototype.initContent = function () {
+                var modelName = 'low-poly world';
+
+                var scope = this;
+                var objLoader2 = new THREE.OBJLoader2();
+
+                var onLoadMtl = function (materials, materialCreator) {
+                    var objLoader = new THREE.OBJLoader();
+                    objLoader.setMaterials(materialCreator);
+                    objLoader.load('./models/dream_island.obj', function (object) {
+                        // Here append anythins
+                        // The environment need to receive the shadow ?
+                        //object.children[21].receiveShadow = true;
+                        scope.addrain(1, true, 0.5, true, true, 0xffffff);
+
+                        //object.add(scope.cloud);
+                        scope.scene.add(scope.cloud);
+                        // The house
+                        scope.house = new House();
+                        scope.house._mesh.position.set(130, 99.2, 200);
+                        scope.house._mesh.scale.set(0.2, 0.2, 0.2);
+                        // scope.house._mesh.rotation.y = -Math.PI/180*20;
+                        object.add(scope.house._mesh);
+
+                        // The Clouds
+                        //scope.clouds = new Clouds();
+                        //object.add(scope.clouds.mesh);
+                        //scope.scene.add(scope.clouds.mesh);
+                        // The Trees
+                        scope.forest = new Forest();
+                        object.add(scope.forest.mesh);
+
+                        // The cows
+                        scope.cows = new Cows();
+                        object.add(scope.cows.mesh);
+
+                        // The rabbits
+                        scope.rabbits = new Rabbits();
+                        object.add(scope.rabbits.mesh);
+
+                        // The wolfs
+                        scope.wolfs = new Wolfs();
+                        object.add(scope.wolfs.mesh);
+
+                        // The hedgehogs
+                        scope.hedgehogs = new Hedgehogs();
+                        object.add(scope.hedgehogs.mesh);
+
+                        // The ballon
+                        scope.ballon = object.children[5];
+
+                        // The airship
+                        scope.airship = object.children[0];
+                        object.children[0].geometry.computeBoundingBox();
+                        object.children[0].geometry.center();
+                        object.children[0].position.x += 258;
+                        object.children[0].position.y += 135;
+                        object.children[0].position.z += -113;
+
+                        // The boat
+                        scope.woodenboat = object.children[17];
+                        object.children[17].geometry.computeBoundingBox();
+                        object.children[17].geometry.center();
+                        object.children[17].position.x += 85;
+                        object.children[17].position.y += 91;
+                        object.children[17].position.z += 42;
+
+
+                        // The barn
+                        scope.barn = object.children[12];
+                        scope.barnAABB = new myAABB(
+                            calculateMyAABB(
+                                [0, 0, 0],
+                                [196, 103, 148],
+                                15, 20, 22
+                            )
+                        );
+
+                        scope.lake = new Lake();
+                        object.add(scope.lake.mesh);
+
+                        scope.objectSet.add(object);
+
+                        scope.loading = false;
+
+                        // scope.rabbits.rabbits[0].trigger("nod", null);
+
+                        scope.wolfs.wolfs[0].trigger("sleep", null);
+
+                        // scope.hedgehogs.hedgehogs[0].nod();
+
+                        // for (var i = 0; i < scope.cows.cows.length; i++) {
+                        //     scope.cows.cows[i].trigger("nod", null);
+                        // }
+
+                        scope.ballonUp();
+
+                    });
+                };
+                objLoader2.loadMtl('./models/dream_island.mtl', null, onLoadMtl);
+
+                this.scene.add(this.objectSet);
+                this.loadSkyBox();
+
+                this.scene.add(this.Skybox);
+                doorOk = true;
+            };
+
+            Outer.prototype.resizeDisplayGL = function () {
+
+                this.viewcamera.aspect = window.innerWidth / window.innerHeight;
+                this.viewcamera.updateProjectionMatrix();
+
+                this.renderer.setSize(window.innerWidth, window.innerHeight, false);
+                this.updateCamera();
+
+            };
+
+            Outer.prototype.bind_item = function () {
+                if (ontouch && !prevtouch) {
+                    if (vcontrol.getObject().position.x >= boat_pox - 4 && vcontrol.getObject().position.x <= boat_pox + 4
+                        && vcontrol.getObject().position.y >= 89 && vcontrol.getObject().position.y <= 94
+                        && vcontrol.getObject().position.z >= boat_poz - 2 && vcontrol.getObject().position.z <= boat_poz + 2) {
+                        isbind_boat = !isbind_boat;
+                    }
+                    if (vcontrol.getObject().position.x >= ship_pox - 4 && vcontrol.getObject().position.x <= ship_pox + 4
+                        && vcontrol.getObject().position.y >= ship_poy - 35 && vcontrol.getObject().position.y <= ship_poy - 25
+                        && vcontrol.getObject().position.z >= ship_poz - 2 && vcontrol.getObject().position.z <= ship_poz + 2) {
+                        isbind_ship = !isbind_ship;
+                    }
+                    if (vcontrol.getObject().position.x >= this.cows.cows[0].mesh.position.x - 2 && vcontrol.getObject().position.x <= this.cows.cows[0].mesh.position.x + 2
+                        && vcontrol.getObject().position.y >= this.cows.cows[0].mesh.position.y - 5 && vcontrol.getObject().position.y <= this.cows.cows[0].mesh.position.y + 15
+                        && vcontrol.getObject().position.z >= this.cows.cows[0].mesh.position.z - 2 && vcontrol.getObject().position.z <= this.cows.cows[0].mesh.position.z + 2) {
+                        isbind_cow = !isbind_cow;
+                    }
+                }
+                prevtouch = ontouch;
+            };
+
+            Outer.prototype.shot = function () {
+                var image = new Image();
+                this.renderer.render(this.scene, this.viewcamera);
+                let imgData = this.renderer.domElement.toDataURL("image/jpeg");//这里可以选择png格式jpeg格式
+                image.src = imgData;
+                var savaFile = function (data, filename) {
+                    var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+                    save_link.href = data;
+                    save_link.download = filename;
+                    var event = document.createEvent('MouseEvents');
+                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    save_link.dispatchEvent(event);
+                };
+                var filename = '' + new Date().getSeconds() + '.jpeg';
+                //我想用当前秒是可以解决重名的问题了 不行你就换成毫秒
+                savaFile(imgData, filename);
+            };
+
+            Outer.prototype.resetCamera = function () {
+                this.updateCamera();
+            };
+
+            Outer.prototype.updateCamera = function () {
+                if (vcontrol.isLocked === true) {
+                    this.raycaster.ray.origin.copy(vcontrol.getObject().position);
+                    if (isbind_cow) {
+                        this.raycaster.ray.origin.y -= 12;
+                    }
+                    this.raycaster.ray.origin.y += 6;
+                    var intersections = this.raycaster.intersectObjects(this.objectSet.children, true);//(this.scene.children, true);
+                    var onObject = intersections.length > 0;
+                    // console.log("The intersections:" + intersections.length)
+                    var time = performance.now();
+                    var delta = (time - this.prevTime) / 1000;
+
+                    velocity.x -= velocity.x * 10.0 * delta;
+                    velocity.z -= velocity.z * 10.0 * delta;
+
+                    if (!isbind_ship) velocity.y -= 9.8 * 10.0 * delta;
+                    else velocity.y -= velocity.y * 10.0 * delta;
+
+                    this.direction.z = Number(moveForward) - Number(moveBackward);
+                    this.direction.x = Number(moveLeft) - Number(moveRight);
+                    this.direction.normalize(); // this ensures consistent movements in all directions
+
+                    this.bind_item(vcontrol.getObject().position.y);
+                    var speed = (running) ? 250 : 100;
+
+                    if (moveForward || moveBackward) velocity.z -= this.direction.z * speed * delta;
+                    if (moveLeft || moveRight) velocity.x -= this.direction.x * speed * delta;
+
+                    if (isbind_ship && !ondown) {
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
+                    }
+                    else if (isbind_ship && ondown) {
+                        velocity.y = Math.max(-20, velocity.y);
+                        canJump = true;
+                    }
+                    else if (isbind_cow) {
+                        //不要问我为什么是107.2....调出来的,只能在最开始的平面跳
+                        velocity.y = (vcontrol.getObject().position.y > 107.2) ? velocity.y : Math.max(0, velocity.y);
+                        canJump = true;
+                    }
+                    else if (onObject == true) {
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
+                    }
+
+                    vcontrol.getObject().translateX(velocity.x * delta);
+                    vcontrol.getObject().translateY(velocity.y * delta);
+                    vcontrol.getObject().translateZ(velocity.z * delta);
+
+
+                    boat_pox = this.woodenboat.position.x;
+                    boat_poz = this.woodenboat.position.z;
+
+                    ship_pox = this.airship.position.x;
+                    ship_poy = this.airship.position.y;
+                    ship_poz = this.airship.position.z;
+
+
+                    if (isbind_cow) {
+                        this.cows.cows[0].mesh.rotation.y = vcontrol.getObject().rotation.y;
+                        this.cows.cows[0].mesh.translateX(velocity.x * delta);
+                        this.cows.cows[0].mesh.translateY(velocity.y * delta);
+                        this.cows.cows[0].mesh.translateZ(velocity.z * delta);
+                        this.cows.cows[0].mesh.rotation.y += Math.PI / 2;
+                    }
+
+
+                    if (isbind_ship) {
+                        this.airship.position.x -= ship_pox;
+                        this.airship.position.z -= ship_poz;
+                        this.airship.rotation.y = vcontrol.getObject().rotation.y;
+                        this.airship.position.x += ship_pox;
+                        this.airship.position.z += ship_poz;
+                        this.airship.translateX(velocity.x * delta);
+                        this.airship.translateY(velocity.y * delta);
+                        this.airship.translateZ(velocity.z * delta);
+                        this.airship.position.x -= ship_pox;
+                        this.airship.position.z -= ship_poz;
+                        this.airship.rotation.y = 0;
+                        this.airship.position.x += ship_pox;
+                        this.airship.position.z += ship_poz;
+                    }
+                    if (isbind_boat) {
+                        this.woodenboat.position.x -= boat_pox;
+                        this.woodenboat.position.z -= boat_poz;
+                        this.woodenboat.rotation.y = vcontrol.getObject().rotation.y;//+ Math.PI * 1.37;
+                        this.woodenboat.position.x += boat_pox;
+                        this.woodenboat.position.z += boat_poz;
+                        this.woodenboat.translateX(velocity.x * delta);
+                        this.woodenboat.translateZ(velocity.z * delta);
+                        this.woodenboat.position.x -= boat_pox;
+                        this.woodenboat.position.z -= boat_poz;
+                        this.woodenboat.rotation.y += Math.PI * 1.37;
+                        this.woodenboat.position.x += boat_pox;
+                        this.woodenboat.position.z += boat_poz;
+                    }
+                    if (isbind_cow) {
+                        this.viewAABB.update(
+                            calculateMyAABB(
+                                [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                                [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                                cowPara[0] * vcontrol.getObject().scale.x,
+                                cowPara[1] * vcontrol.getObject().scale.y,
+                                cowPara[2] * vcontrol.getObject().scale.z
+                            )
+                        );
+                    }
+                    else {
+                        this.viewAABB.update(
+                            calculateMyAABB(
+                                [vcontrol.getObject().rotation.x, vcontrol.getObject().rotation.y, vcontrol.getObject().rotation.z],
+                                [vcontrol.getObject().position.x, vcontrol.getObject().position.y, vcontrol.getObject().position.z],
+                                viewPara[0] * vcontrol.getObject().scale.x,
+                                viewPara[1] * vcontrol.getObject().scale.y,
+                                viewPara[2] * vcontrol.getObject().scale.z
+                            )
+                        );
+                    }
+
+                    this.collideDetect();
+                    var ifCollide = this.viewAABB.iscollision;
+                    if (ifCollide) {
+                        vcontrol.getObject().translateX(-velocity.x * delta);
+                        vcontrol.getObject().translateY(-velocity.y * delta);
+                        vcontrol.getObject().translateZ(-velocity.z * delta);
+                        if (isbind_cow) {
+                            this.cows.cows[0].mesh.rotation.y -= Math.PI / 2;
+                            this.cows.cows[0].mesh.translateX(-velocity.x * delta);
+                            this.cows.cows[0].mesh.translateY(-velocity.y * delta);
+                            this.cows.cows[0].mesh.translateZ(-velocity.z * delta);
+                            this.cows.cows[0].mesh.rotation.y += Math.PI / 2;
+                        }
+                        this.viewAABB.collisionOver();
+                        if (moveForward || moveBackward) velocity.z += this.direction.z * speed * delta;
+                        if (moveLeft || moveRight) velocity.x += this.direction.x * speed * delta;
+                    }
+
+                    if (vcontrol.getObject().position.y < 60) {
+                        velocity.y = 0;
+                        vcontrol.getObject().position.y = 150;
+                        canJump = true;
+
+                    }
+                    this.prevTime = time;
+
+                    if (doorOk) {
+                        this.house.setDoorOpenFlag(door);
+                    }
+                }
+
+            };
+
+
+            Outer.prototype.render = function () {
+                if (!this.renderer.autoClear) this.renderer.clear();
+                this.renderer.render(this.scene, this.viewcamera);
+                //产生雨滴动画效果
+                if (!this.loading) {
+                    var vertices = this.cloud.geometry.vertices;
+                    if (raining) {
+                        vertices.forEach(function (v) {
+                            v.y = v.y - (v.velocityY) * 6;
+                            v.x = v.x - (v.velocityX) * .5;
+
+                            if (v.y <= -60) v.y = 60;
+                            if (v.y >= 60) v.y = 60;
+                            //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+                        });
+
+                    }
+                    else {
+                        vertices.forEach(function (v) {
+                            v.y = 6000;
+                            //if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+                        });
+                    }
+                    this.cloud.geometry.verticesNeedUpdate = true;
+
+                }
+                //设置实时更新网格的顶点信息
+                this.updateCamera();
+
+                if (onshot && !prevonshot) {
+                    console.log("shotting");
+                    this.shot();
+                }
+                prevonshot = onshot;
+            };
+
+            Outer.prototype.loadSkyBox = function () {
+                adCubeMap = THREE.ImageUtils.loadTextureCube([
+                    // 'assets/img/px.jpg',
+                    // 'assets/img/nx.jpg',
+                    // 'assets/img/py.jpg',
+                    // 'assets/img/ny.jpg',
+                    // 'assets/img/pz.jpg',
+                    // 'assets/img/nz.jpg'
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg',
+                    // 'assets/img/ndb.jpg'
+                    'assets/img/round.jpg',
+                    'assets/img/round.jpg',
+                    'assets/img/up.jpg',
+                    'assets/img/down.jpg',
+                    'assets/img/round.jpg',
+                    'assets/img/round.jpg'
+                ]);
+                adCubeMap.format = THREE.RGBFormat;
+
+                // var adShader = THREE.ShaderLib['cube'];
+                // adShader.uniforms['tCube'].value = adCubeMap;
+                globalCubeShader = THREE.ShaderLib['cube'];
+                globalCubeShader.uniforms['tCube'].value = adCubeMap;
+
+                var adSkyBoxMaterial = new THREE.ShaderMaterial({
+                    fragmentShader: globalCubeShader.fragmentShader,
+                    vertexShader: globalCubeShader.vertexShader,
+                    uniforms: globalCubeShader.uniforms,
+                    depthWrite: false,
+                    side: THREE.BackSide
+                });
+
+                this.Skybox = new THREE.Mesh(
+                    new THREE.BoxGeometry(100000000, 100000000, 100000000),
+                    adSkyBoxMaterial
+                );
+
+                // this.scene.add(this.adSkybox);
+
+                anCubeMap = THREE.ImageUtils.loadTextureCube([
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg',
+                    'assets/img/nnb.jpg'
+
+                ]);
+                anCubeMap.format = THREE.RGBFormat;
+
+                // var anShader = THREE.ShaderLib['cube'];
+                // anShader.uniforms['tCube'].value = anCubeMap;
+
+                // var anSkyBoxMaterial = new THREE.ShaderMaterial({
+                //     fragmentShader: anShader.fragmentShader,
+                //     vertexShader: anShader.vertexShader,
+                //     uniforms: anShader.uniforms,
+                //     depthWrite: false,
+                //     side: THREE.BackSide
+                // });
+
+                // anSkybox = new THREE.Mesh(
+                //     new THREE.BoxGeometry(200000000, 200000000, 200000000),
+                //     anSkyBoxMaterial
+                // );
+
+                // this.scene.add(this.anSkybox);
+            }
+
+            // Key board
+            Outer.prototype.onKeyDown = function (event) {
+
+                switch (event.keyCode) {
+
+                    case 69:
+                        ontouch = true;
+                        break;
+                    case 67:
+                        ondown = true;
+                        if (isbind_ship)
+                            velocity.y -= 30;
+                        break;
+
+                    case 84:
+                        onshot = true;
+                        break;
+
+                    case 38: // up
+                    case 87: // w
+                        moveForward = true;
+                        // console.log("Move test");
+                        break;
+
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = true;
+                        break;
+
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = true;
+                        break;
+
+                    case 39: // right
+                    case 68: // d
+                        moveRight = true;
+                        break;
+
+                    case 32: // space
+                        // console.log("Jump test");
+                        if (canJump == true)
+                            velocity.y += 30;
+                        canJump = false;
+                        break;
+
+                    case 16:
+                        running = true;
+                        break;
+
+                    case 70: // f
+                        door = door == true ? false : true;
+                        break;
+
+                    case 90: // z
+                        if (day) {
+                            globalCubeShader.uniforms['tCube'].value = anCubeMap;
+                            day = false;
+                            
+                            sunLight.visible = false;
+                            moonLight.visible = true;
+                            towerLight.visible = true;
+                            towerbulb.visible = true;
+                            this.wolfs.wolfs[0].trigger("sleep", null);
+                        }
+                        else {
+                            globalCubeShader.uniforms['tCube'].value = adCubeMap;
+                            day = true;
+                            sunLight.visible = true;
+                            moonLight.visible = false;
+                            towerLight.visible = false;
+                            towerbulb.visible = false;
+                            this.wolfs.wolfs[0].trigger("nod", null);
+                        }
+                        break;
+
+                    case 49:    // 1
+                        raining = ~raining;
+                        break;
+
+                    case 86:    // V
+                        if(tv_ctrl.paused){
+                            tv_ctrl.play();
+                        }else{
+                            tv_ctrl.pause();
+                        }
+
+                }
+
+            };
+
+            Outer.prototype.onKeyUp = function (event) {
+
+                switch (event.keyCode) {
+
+                    case 69:
+                        ontouch = false;
+                        break;
+
+                    case 67:
+                        ondown = false;
+                        break;
+
+                    case 84:
+                        onshot = false;
+                        break;
+
+                    case 38: // up
+                    case 87: // w
+                        moveForward = false;
+                        break;
+
+                    case 37: // left
+                    case 65: // a
+                        moveLeft = false;
+                        break;
+
+                    case 40: // down
+                    case 83: // s
+                        moveBackward = false;
+                        break;
+
+                    case 39: // right
+                    case 68: // d
+                        moveRight = false;
+                        break;
+
+                    case 16:
+                        running = false;
+                        break;
+                }
+            }
+
+            Outer.prototype.collideDetect = function () {
+                // For camera
+                var obj_camera = this.viewAABB;
+                // With trees
+                for (var i = 0; i < this.forest.trees.length; i++) {
+                    obj_camera.detect(this.forest.trees[i].AABB);
+                    if (obj_camera.iscollision) {
+                        this.forest.trees[i].AABB.iscollision = true;
+                        break;
+                    }
+                }
+
+                for (var i = 0; i < this.cows.cows.length; i++) {
+                    obj_camera.detect(this.cows.cows[i].AABB);
+                    if (obj_camera.iscollision) {
+                        this.cows.cows[i].AABB.iscollision = true;
+                        break;
+                    }
+                }
+                for (var i = 0; i < this.wolfs.wolfs.length; i++) {
+                    obj_camera.detect(this.wolfs.wolfs[i].AABB);
+                }
+                for (var i = 0; i < this.rabbits.rabbits.length; i++) {
+                    // console.log(this.rabbits.rabbits[i].AABB);
+                    obj_camera.detect(this.rabbits.rabbits[i].AABB);
+                }
+                obj_camera.detect(this.house.sofaAABB);
+                obj_camera.detect(this.house.bedAABB);
+                obj_camera.detect(this.house.tableAABB);
+                obj_camera.detect(this.house.stoveAABB);
+                obj_camera.detect(this.house.wardrobeAABB);
+                obj_camera.detect(this.house.toiletAABB);
+                obj_camera.detect(this.house.frontBottomWindowWallAABB);
+                obj_camera.detect(this.house.frontMiddleWall);
+                obj_camera.detect(this.house.kitchenWallAABB);
+                obj_camera.detect(this.house.leftWallAABB);
+                obj_camera.detect(this.house.rightWallAABB);
+                obj_camera.detect(this.house.backWallAABB);
+                obj_camera.detect(this.house.toiletWallAABB);
+
+                obj_camera.detect(this.barnAABB);
+                // if (obj_camera.iscollision) {
+                //     console.log("Oops");
+                //     obj_camera.collisionOver();
+                // }
+            }
+
+            Outer.prototype.cowsControl = function () {
+                // 首先是牛牛的碰撞检测
+                // 注意晚上睡觉的接口
+                for (var i = 1; i < this.cows.cows.length; i++) {
+                    // Shall I leave a cow for TTX ?
+                    var cattle = this.cows.cows[i];
+                    // Camera has done
+                    // With trees
+                    for (var j = 0; (j < this.forest.trees.length && cattle.AABB.iscollision == false); j++) {
+                        cattle.AABB.detect(this.forest.trees[j].AABB);
+                    }
+                    // With wolfs
+                    for (var j = 0; (j < this.wolfs.wolfs.length && cattle.AABB.iscollision == false); j++) {
+                        cattle.AABB.detect(this.wolfs.wolfs[j].AABB);
+                    }
+                    // With rabbits
+                    for (var j = 0; (j < this.rabbits.rabbits.length && cattle.AABB.iscollision == false); j++) {
+                        cattle.AABB.detect(this.rabbits.rabbits[j].AABB);
+                    }
+                    // With other cows
+                    for (var j = 0; (j < this.cows.cows.length && cattle.AABB.iscollision == false); j++) {
+                        if (j == i)
+                            continue;
+                        cattle.AABB.detect(this.cows.cows[j].AABB);
+                    }
+
+
+                    // Done then
+                    if (day) {
+                        if (cattle.AABB.iscollision && cattle.status != "jumping") {
+                            // Moving all states now
+                            //if (cattle.status != "jumping")
+                            cattle.interrupt();
+                            //if(cattle.status != "jumping")
+                            //    cattle.trigger("jump", null);
+                            //cattle.trigger("jump", null);
+                            cattle.trigger("retreat", null);
+                            //console.log("Cow Number: ", i, "Oops");
+                            cattle.AABB.collisionOver();
+                            //console.log("Back jumping");
+                        }
+
+                        // // Can do something then
+                        else if (cattle.buffer.count() && cattle.status != "jumping") {
+                            // Delete all moving states now
+                            cattle.interrupt();
+                            var choice = Math.floor(Math.random() * 5);
+
+                            if (choice == 4) {
+                                //console.log("Noding");
+                                cattle.trigger("nod", null);
+                            } else if (choice == 3) {
+                                //console.log("Jumping");
+                                cattle.trigger("jump", null);
+                            } else if (choice == 2) {
+                                //console.log("Forwarding");
+                                var time = 10 * Math.random();
+                                cattle.trigger("forward", time);
+                            } else if (choice == 1) {
+                                //console.log("Rotating");
+                                var degree = (Math.random() * 2 - 1) * Math.PI;
+                                cattle.trigger("rotate", degree);
+                            } else {
+                                // do nothing
+                                //console.log("Idle");
+                            }
+                        }
+                    } else {
+                        if (cattle.status != "sleeping") {
+                            cattle.interrupt();
+                            cattle.trigger("sleep", null);
+                        }
+                    }
+
+                }
+                this.cows.loop();
+
+            }
+
+            Outer.prototype.rabbitControl = function () {
+                for (var i = 0; i < this.rabbits.rabbits.length; i++) {
+                    var littlerab = this.rabbits.rabbits[i];
+                    // Camera has done
+                    // with trees
+                    for (var j = 0; (j < this.forest.trees.length && littlerab.AABB.iscollision == false); j++) {
+                        littlerab.AABB.detect(this.forest.trees[j].AABB);
+                    }
+                    // with wolfs
+                    for (var j = 0; (j < this.wolfs.wolfs.length && littlerab.AABB.iscollision == false); j++) {
+                        littlerab.AABB.detect(this.wolfs.wolfs[j].AABB);
+                    }
+                    for (var j = 0; (j < this.cows.cows.length && littlerab.AABB.iscollision == false); j++) {
+                        littlerab.AABB.detect(this.cows.cows[j].AABB);
+                    }
+                    // With rabbits
+                    for (var j = 0; (j < this.rabbits.rabbits.length && littlerab.AABB.iscollision == false); j++) {
+                        if (i == j)
+                            continue;
+                        littlerab.AABB.detect(this.rabbits.rabbits[j].AABB);
+                    }
+                    // Done then
+                    if (day) {
+                        if (littlerab.AABB.iscollision) {
+                            // Moving all states now
+                            //if (cattle.status != "jumping")
+                            littlerab.interrupt();
+                            //if(cattle.status != "jumping")
+                            //    cattle.trigger("jump", null);
+                            //cattle.trigger("jump", null);
+                            littlerab.trigger("retreat", null);
+                            //console.log("Cow Number: ", i, "Oops");
+                            littlerab.AABB.collisionOver();
+                            //console.log("Back jumping");
+                        }
+
+                        // // Can do something then
+                        else if (littlerab.buffer.count()) {
+                            // Delete all moving states now
+                            littlerab.interrupt();
+                            var choice = Math.floor(Math.random() * 4);
+
+                            if (choice == 3) {
+                                //console.log("Noding");
+                                littlerab.trigger("nod", null);
+                            } else if (choice == 2) {
+                                //console.log("Forwarding");
+                                var time = 10 * Math.random();
+                                littlerab.trigger("forward", time);
+                            } else if (choice == 1) {
+                                //console.log("Rotating");
+                                var degree = (Math.random() * 2 - 1) * Math.PI;
+                                littlerab.trigger("rotate", degree);
+                            } else {
+                                // do nothing
+                                //console.log("Idle");
+                            }
+                        }
+                    } else {
+                        if (littlerab.status != "sleeping") {
+                            littlerab.interrupt();
+                            littlerab.trigger("sleep", null);
+                        }
+                    }
+                }
+                this.rabbits.loop();
+            }
+
+
+            return Outer;
+
+        })();
+
+        // var app = new Outer( document.getElementById( 'example' ) );
+
+        var app = new Outer();
+
+
+        var resizeWindow = function () {
+            app.resizeDisplayGL();
+        };
+
+        var render = function () {
+            requestAnimationFrame(render);
+            app.render();
+
+            //console.log(app.forest.trees[0].mesh.position.x);
+            if (!app.loading) {
+                //app.forest.trees[0].mesh.rotation.y += 0.01;
+                //app.cows.loop();
+                app.cowsControl();
+                app.rabbitControl();
+                app.wolfs.loop();
+                app.lake.animate();
+                app.forest.collideDetect();
+            }
+
+        };
+
+        var target = document.getElementById("mybgm");
+
+        console.log(target);
+
+        function init(event) {
+            app.initGL();
+            app.renderer.setPixelRatio(window.devicePixelRatio);
+            app.renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(app.renderer.domElement);
+
+            app.resizeDisplayGL();
+            app.initContent();
+            render();
+        }
+        
+
+
+        window.addEventListener('resize', resizeWindow, false);
+        window.addEventListener('load', init, false);
+
+
+    </script>
+</body>
+
+</html>

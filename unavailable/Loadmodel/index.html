@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+
+<body>
+	<div id="glFullscreen">
+    <canvas id="example"></canvas>
+	</div>
+	<div class="world" id="world"></div>
+
+	<script src="src/three.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
+  <script src="drawable.js"></script>
+	<script>
+		//COLORS
+
+// THREEJS RELATED VARIABLES
+
+var scene,
+    camera, fieldOfView, aspectRatio, nearPlane, farPlane,
+    renderer, container, clock;
+// var drawable = new Drawable();
+
+//SCREEN & MOUSE VARIABLES
+
+var HEIGHT, WIDTH,
+    mousePos = { x: 0, y: 0 };
+
+//INIT THREE JS, SCREEN AND MOUSE EVENTS
+
+function createScene() {
+
+  HEIGHT = window.innerHeight;
+  WIDTH = window.innerWidth;
+
+  scene = new THREE.Scene();
+  aspectRatio = WIDTH / HEIGHT;
+  fieldOfView = 60;
+  nearPlane = 1;
+  farPlane = 10000;
+  camera = new THREE.PerspectiveCamera(
+    fieldOfView,
+    aspectRatio,
+    nearPlane,
+    farPlane
+    );
+  scene.fog = new THREE.Fog(0xf7d9aa, 100,950);
+  camera.position.x = 0;
+  camera.position.z = 200;
+  camera.position.y = 100;
+
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(WIDTH, HEIGHT);
+  renderer.shadowMap.enabled = true;
+  container = document.getElementById('world');
+  container.appendChild(renderer.domElement);
+
+  window.addEventListener('resize', handleWindowResize, false);
+}
+
+// HANDLE SCREEN EVENTS
+
+function handleWindowResize() {
+  HEIGHT = window.innerHeight;
+  WIDTH = window.innerWidth;
+  renderer.setSize(WIDTH, HEIGHT);
+  camera.aspect = WIDTH / HEIGHT;
+  camera.updateProjectionMatrix();
+}
+
+
+// LIGHTS
+
+var ambientLight, hemisphereLight, shadowLight;
+
+function createLights() {
+
+  hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9)
+  shadowLight = new THREE.DirectionalLight(0xffffff, .9);
+  shadowLight.position.set(150, 350, 350);
+  shadowLight.castShadow = true;
+  shadowLight.shadow.camera.left = -400;
+  shadowLight.shadow.camera.right = 400;
+  shadowLight.shadow.camera.top = 400;
+  shadowLight.shadow.camera.bottom = -400;
+  shadowLight.shadow.camera.near = 1;
+  shadowLight.shadow.camera.far = 1000;
+  shadowLight.shadow.mapSize.width = 2048;
+  shadowLight.shadow.mapSize.height = 2048;
+
+  scene.add(hemisphereLight);
+  scene.add(shadowLight);
+}
+
+
+// 3D Models
+var tree1;
+var tree2;
+var tree3;
+var tree4;
+var rabbit;
+var wolf;
+var cow;
+var hedgehog
+var wall;
+
+function createTree()
+{
+  tree1 = new drawable.Tree1();
+  tree1.mesh.scale.set(1, 1, 1);
+  tree1.mesh.position.x = -100;
+  tree1.mesh.position.y = 50;
+  scene.add(tree1.mesh);
+
+  tree2 = new drawable.Tree2();
+  tree2.mesh.position.x = -50;
+  tree2.mesh.position.y = 50;
+  tree2.mesh.scale.set(1, 1, 1);
+  scene.add(tree2.mesh);
+
+  tree3 = new drawable.Tree3();
+  tree3.mesh.position.x = 0;
+  tree3.mesh.position.y = 50;
+  tree3.mesh.scale.set(1, 1, 1);
+  scene.add(tree3.mesh);
+
+  tree4 = new drawable.Tree4();
+  tree4.mesh.position.x = 50;
+  tree4.mesh.position.y = 50;
+  tree4.mesh.scale.set(1, 1, 1);
+  scene.add(tree4.mesh);
+
+  tree5 = new drawable.Tree5();
+  tree5.mesh.position.x = 100;
+  tree5.mesh.position.y = 50;
+  tree5.mesh.scale.set(1, 1, 1);
+  scene.add(tree5.mesh);
+}
+
+function createRabbit() {
+  rabbit = new drawable.Rabbit();
+  // rabbit.mesh.rotation.y = Math.PI/2;
+  rabbit.mesh.position.y = 80;
+  rabbit.mesh.position.x = 80;
+  // rabbit.mesh.rotation.y = -Math.PI/2;
+  scene.add(rabbit.mesh);
+  // rabbit.nod();
+  rabbit.sleep();
+  // rabbit.move(10, [0, 0, 0]);
+}
+
+function createWolf() {
+  
+  wolf = new drawable.Wolf();
+  wolf.mesh.position.y = 80;
+  wolf.mesh.position.x = -80;
+  wolf.mesh.rotation.y = -Math.PI/4;
+  //wolf.mesh.scale.set(1.2,1.2,1.2);
+  scene.add(wolf.mesh);
+  // wolf.nod();
+  wolf.sleep();
+  // updateWolfPosition();
+  
+}
+
+function createCow() {
+	cow = new Cow();
+	cow.mesh.position.y = 80;
+	cow.mesh.position.x = -80;
+	cow.mesh.position.z = 40;
+	cow.mesh.rotation.y = -Math.PI/4;
+	//cow.mesh.rotation.z = -Math.PI/4;
+	//cow.mesh.rotation.x = Math.PI/24;
+	scene.add(cow.mesh);
+  // cow.nod();
+  // cow.move(20, [80, 80, 40]);
+}
+
+
+
+function createHedgehog(){
+  hedgehog = new drawable.Hedgehog();
+  hedgehog.mesh.position.y = 80;
+  hedgehog.mesh.position.x = 100;
+  hedgehog.mesh.position.z = 40;
+  hedgehog.mesh.scale.set(0.8, 0.8, 0.8);
+  scene.add(hedgehog.mesh);
+  // hedgehog.nod();
+  hedgehog.sleep();
+}
+
+function createWall(){
+  wall = new drawable.Wall();
+  scene.add(wall.mesh);
+}
+
+function loop(){
+  delta = clock.getDelta();
+  cow.action();
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+
+
+function normalize(v,vmin,vmax,tmin, tmax){
+  var nv = Math.max(Math.min(v,vmax), vmin);
+  var dv = vmax-vmin;
+  var pc = (nv-vmin)/dv;
+  var dt = tmax-tmin;
+  var tv = tmin + (pc*dt);
+  return tv;
+}
+
+function init(event){
+  clock = new THREE.Clock();
+  createScene();
+  createLights();
+  // createRabbit();
+  // createWolf();
+  createCow();
+  // createHedgehog();
+  // createCharacter();
+  // createTree();
+  // createWall();
+  loop();
+  cow.trigger("walking", [10, [80, 80, 0]]);
+}
+
+  window.addEventListener('load', init, false);
+	</script>
+</body>
+
+</html>

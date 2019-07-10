@@ -1,43 +1,45 @@
-# CG-2018-Course-Project
+# Oasis in the Sky
 
-> Project for the course - Computer Graphics
+> Project of Computer Graphics @ ZJU in 2018-2019 autumn-winter
 
-Hello everyone. Welcome to our team for the CG course and hopefully every one of us can benefit and get good grade.
+#### Contributors: (in no particular order)
 
----
+- [马麟](https://github.com/form2l1n)
+- [郝佳辉](https://github.com/NonoHh)
+- 徐金焱
+- [罗天翔](https://github.com/TTXbai)
+- [任宇凡](https://github.com/ryf1123/)
 
-## Important things :smile:
+#### Disclaimer: some of the CG models in this project are taken from the Internet, credits belong to the original authors
 
-- It is highly recommended to every team member to star, watch and fork this project to be informed by any modification of this project.
+#### Why "Oasis" ?
 
-- 建议各位都star，watch，fork这个github repository，以便查看重要的修改和日程提示
+Like Walden Pond cherished by Henry David Thoreau's, everyone hopes to have a oasis outside their real life, a place where they can sacrifice benefits🍔🍿🛩 of civilization, but enjoy their life without the restrictions and burden resulted from human society and technology development💰⏰. 
 
-- One more thing, please try to understand what a .dae file is, how to work with it and how to use a .dae in our project.
+![img](assets/65_cover_m-20190701160901766.jpg)
 
-## Time line 
+This is a game **Oasis in the Sky**. With WebGL and JavaScript we build an oasis for you, one far from the real world in the sky! (actually in the cyberspace)
 
-| Date  | ddl |
-| :-------------: | :-------------: |
-|  **Nov. 21**  | submit the subject and team members   |
-| 10-th course  | Presentation |
-| last experiment course | Final Presentation |
+There's no particular goal of this game. I mean, you will never lose or win(, unless you fall from the island or encounter some bugs). But during the journey of playing this game, what we want to tell you is,
 
-## Members in this project
+> You don't have to suppress others to get your goal, you don't have to get more stars, higher scores, you don't have to train every muscle like what you should do if you want to be a professional ethletes. Actually, life is not a competition, it’s a journey. Nevermind, just enjoy it.🍺
 
-...
+#### How to play
 
-## Tasks
+`cd /Oasis in the Sky`, open the `index.html` with your favorite browser. (not fully tested on MacOS, but generally compatible on Windows Edge browser)
 
-> For the first week, the job of every partner is to learn webgl, javaSJavaScript and three.js by yourself, and think about how many parts are needed for this job. Thus we can split the big project into parts.
+Wait a little while until the backgroud become blue. Click anywhere to start the game.
 
-> Moreover, we will make a PPT and give a short talk in the class of next to share our ideas (naive ideas:X ) to our groups and teacher.
+![image-20190701163753275](assets/image-20190701163753275.png)
 
-## Summary of Disscussions
+Then, you can play this game in the first person perspective to get immersive experience. Use W-A-S-D-SPACE to control steps, use mouse to move your perspective. There are more things you can explore. (I won't tell you that you can actually drive the fire ballon🎈 to get a bird's angle. if you press `E` in it)
 
-### Fisrt discussion (time: 11-21, partners: except 郝家辉)
+#### If you cannot run it...
 
-After the disscussion, we got to the consensus of building a scene like Monument Valley (纪念碑谷) or City of Sky (天空之城), which provide the busy modern man with a place to find what really matters in his mind. In this wonderland, we provide players with a place like a mountain, flying high over the ground. You can easily rotate the view and zoom-in and zoom-out to appreciate every aspect of this mountain, just like a God. And do meditation.
+Thanks for [马麟](https://github.com/form2l1n) who makes a recording of this game. It is available at `/Recording.mp4`
 
-Moreover, there are events happening in this place, like dropping a boll, which can be driven by time and events to improve playability. 
+Then you can watch this video recording.
 
-![demo](https://github.com/ryf1123/CG-2018-Course-Project/raw/master/fig/对标工程.png)
+> Thank you for your interest in this project and have fun. We are always open any discussion :)
+
+
