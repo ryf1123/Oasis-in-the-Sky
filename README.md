@@ -1,6 +1,16 @@
-# Oasis in the Sky
+#  Oasis in the Sky
 
 > Project of Computer Graphics @ ZJU in 2018-2019 autumn-winter
+
+### Screen Shots
+
+> Note: these screen shots are not taken from the final version, which is even better :smile:
+
+![image-20191010164933878](assets/image-20191010164933878.png)
+
+![image-20191010164953383](assets/image-20191010164953383.png)
+
+![image-20191010165048185](assets/image-20191010165048185.png)
 
 #### Contributors: (in no particular order)
 
